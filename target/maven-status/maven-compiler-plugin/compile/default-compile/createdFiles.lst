@@ -1,0 +1,4 @@
+com\finbasics\App.class
+com\finbasics\security\PasswordHasher.class
+com\finbasics\controller\LoginController.class
+com\finbasics\Navigator.class

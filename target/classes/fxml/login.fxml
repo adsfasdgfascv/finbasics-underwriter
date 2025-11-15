@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Background that will blur -->
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.finbasics.controller.LoginController" stylesheets="@/css/glass.css">
+
+    <Group fx:id="backgroundLayer">
+        <AnchorPane styleClass="bg" prefWidth="1200" prefHeight="720">
+            <Label text="Kobeta lending tool" styleClass="hero"
+                   AnchorPane.leftAnchor="80.0" AnchorPane.bottomAnchor="140.0"/>
+            <Button text="Login" styleClass="glass-button" onAction="#openLogin"
+                    AnchorPane.rightAnchor="90.0" AnchorPane.topAnchor="80.0"/>
+        </AnchorPane>
+    </Group>
+
+    <!-- Modal overlay (hidden by default) -->
+    <StackPane fx:id="modalLayer" visible="false" pickOnBounds="true">
+        <!-- dark scrim -->
+        <Rectangle fill="#00000066" StackPane.alignment="CENTER"
+                   width="${parent.width}" height="${parent.height}"
+                   onMouseClicked="#closeLogin"/>
+        <!-- centered glass card -->
+        <VBox styleClass="glass-card" spacing="12" alignment="TOP_LEFT" prefWidth="480">
+            <HBox alignment="TOP_RIGHT">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#closeLogin" styleClass="icon-close"/>
+            </HBox>
+
+            <Label text="Your logo" styleClass="logo-title"/>
+            <Label text="Login" styleClass="section-title"/>
+            <Label text="Username" styleClass="minor-label"/>
+            <TextField fx:id="usernameField" promptText="username@gmail.com" styleClass="glass-field"/>
+            <Label text="Password" styleClass="minor-label"/>
+            <PasswordField fx:id="passwordField" promptText="Password" styleClass="glass-field"/>
+            <Hyperlink text="Forgot Password?" onAction="#onForgot" styleClass="muted-link"/>
+            <Button text="Sign in" onAction="#signIn" styleClass="primary-btn" maxWidth="Infinity"/>
+            <Label text="or continue with" styleClass="muted-center"/>
+            <HBox spacing="10" alignment="CENTER" styleClass="social-row">
+                <Button text="G" styleClass="social-glass"/>
+                <Button text="" styleClass="social-glass"/>
+                <Button text="f" styleClass="social-glass"/>
+            </HBox>
+            <Region minHeight="6"/>
+        </VBox>
+    </StackPane>
+</StackPane>
+
+
