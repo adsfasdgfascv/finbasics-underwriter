@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.finbasics.controller.DashboardController"
+            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12;">
+
+    <!-- Top menu bar -->
+    <top>
+        <VBox style="-fx-background-color: #f0f0f0; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
+            <HBox spacing="10" style="-fx-padding: 10;">
+                <Label text="Dashboard" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Logout" onAction="#logout" style="-fx-padding: 8 15; -fx-font-size: 12;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Main content area -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            <Label text="Welcome to FinBasics Underwriter" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+            
+            <TitledPane text="Quick Actions" expanded="true">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Button text="Upload Financial Statements" style="-fx-padding: 10 20; -fx-font-size: 14;"/>
+                    <Button text="View Borrowers" style="-fx-padding: 10 20; -fx-font-size: 14;"/>
+                    <Button text="Generate Reports" style="-fx-padding: 10 20; -fx-font-size: 14;"/>
+                </VBox>
+            </TitledPane>
+
+            <TitledPane text="Recent Activity" expanded="false">
+                <VBox style="-fx-padding: 10;">
+                    <Label text="No recent activity" style="-fx-text-fill: #999;"/>
+                </VBox>
+            </TitledPane>
+        </VBox>
+    </center>
+</BorderPane>

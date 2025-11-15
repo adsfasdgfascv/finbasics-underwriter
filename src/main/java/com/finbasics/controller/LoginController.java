@@ -1,10 +1,17 @@
 package com.finbasics.controller;
 
+
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
+import com.finbasics.model.User;
+import com.finbasics.service.AuthService;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
 /**
  * Handles all user interactions on the login screen.
@@ -20,6 +27,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     
     private final GaussianBlur blur = new GaussianBlur(24);
+    private final AuthService auth = new AuthService();
 
     /**
      * Opens login modal and applies blur effect to background.
@@ -51,38 +59,30 @@ public class LoginController {
      */
     @FXML
     private void signIn() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
-        
-        // Validate both fields are filled
-        if (username.isBlank()) {
-            new Alert(Alert.AlertType.WARNING, "Please enter your username.").showAndWait();
-            return;
+        try {
+            if (usernameField.getText().isBlank() || passwordField.getText().isBlank()) {
+                throw new IllegalArgumentException("Please enter username and password.");
+            }
+            User u = auth.login(usernameField.getText().trim(), passwordField.getText());
+            Stage stage = (Stage) modalLayer.getScene().getWindow();
+            
+            // Load dashboard FXML
+            var dashboardUrl = getClass().getResource("/fxml/dashboard.fxml");
+            if (dashboardUrl == null) {
+                throw new IllegalStateException("Missing /fxml/dashboard.fxml resource");
+            }
+            Parent root = FXMLLoader.load(dashboardUrl);
+            stage.setScene(new Scene(root, 1200, 720));
+            stage.setTitle("Dashboard - " + u.getusername());
+        } catch (IllegalStateException ex) {
+            // Resource not found
+            new Alert(Alert.AlertType.ERROR, "Application error: " + ex.getMessage()).showAndWait();
+        } catch (Exception ex) {
+            // DB auth errors or other exceptions
+            new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
         }
-        
-        if (password.isBlank()) {
-            new Alert(Alert.AlertType.WARNING, "Please enter your password.").showAndWait();
-            return;
-        }
-        
-        // TODO: Replace demo code with real database validation:
-        // try {
-        //     User user = Database.validateLogin(username, password);
-        //     if (user != null) {
-        //         new Alert(Alert.AlertType.INFORMATION, "Welcome, " + user.getUsername()).showAndWait();
-        //         closeLogin();
-        //         // TODO: Navigate to dashboard
-        //     } else {
-        //         new Alert(Alert.AlertType.ERROR, "Invalid username or password.").showAndWait();
-        //     }
-        // } catch (Exception e) {
-        //     new Alert(Alert.AlertType.ERROR, "Database error: " + e.getMessage()).showAndWait();
-        // }
-        
-        // Demo mode - remove when real auth is implemented
-        new Alert(Alert.AlertType.INFORMATION, "Signed in! (demo)").showAndWait();
-        closeLogin();
     }
+
 
     /**
      * Handles "Forgot Password" action.

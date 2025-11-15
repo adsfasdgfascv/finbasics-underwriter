@@ -1,4 +1,13 @@
-com\finbasics\App.class
-com\finbasics\security\PasswordHasher.class
+com\finbasics\service\AuthService.class
+com\finbasics\model\User.class
+com\finbasics\persistence\Database.class
+com\finbasics\persistence\AuditRepository.class
+com\finbasics\DbCheck.class
 com\finbasics\controller\LoginController.class
+com\finbasics\security\PasswordHasher.class
+com\finbasics\service\Session.class
+com\finbasics\controller\DashboardController.class
+com\finbasics\persistence\UserRepository.class
+com\finbasics\service\AuthException.class
+com\finbasics\App.class
 com\finbasics\Navigator.class
