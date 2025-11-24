@@ -46,19 +46,46 @@ public class Database {
      */
     public static void init() {
         try {
-            // Step 1: Build the folder path: [your home directory]/finbasics
-            // Example: C:\Users\gabie\finbasics
-            Path dir = Paths.get(System.getProperty("user.home"), "finbasics");
-            
-            // Step 2: Check if the folder exists
-            if (!Files.exists(dir)) {
-                // If folder doesn't exist, create it (and any parent folders needed)
-                Files.createDirectories(dir);
+            // Determine database path precedence:
+            // 1) System property -Dfinbasics.db.path
+            // 2) Environment variable FINBASICS_DB_PATH
+            // 3) Default: [user.home]/finbasics/finbasics.db
+            String configured = System.getProperty("finbasics.db.path");
+            if (configured == null || configured.isBlank()) {
+                configured = System.getenv("FINBASICS_DB_PATH");
             }
-            
-            // Step 3: Build the full database file path
-            // Example: C:\Users\gabie\finbasics\finbasics.db
-            dbPath = dir.resolve("finbasics.db").toString();
+
+            Path dbFilePath;
+            if (configured != null && !configured.isBlank()) {
+                dbFilePath = Paths.get(configured).toAbsolutePath();
+            } else {
+                // Step 1: Build the folder path: [your home directory]/finbasics
+                Path dir = Paths.get(System.getProperty("user.home"), "finbasics");
+                // Create folder if missing
+                if (!Files.exists(dir)) Files.createDirectories(dir);
+                dbFilePath = dir.resolve("finbasics.db");
+            }
+
+            // Ensure parent directory exists for configured path
+            Path parent = dbFilePath.getParent();
+            if (parent != null && !Files.exists(parent)) {
+                Files.createDirectories(parent);
+            }
+
+            // Step 2/3: Final DB path string used by JDBC
+            dbPath = dbFilePath.toString();
+
+            // If the user configured a new location but an older DB exists at the
+            // original default location, copy it over to preserve data.
+            Path defaultOld = Paths.get(System.getProperty("user.home"), "finbasics", "finbasics.db");
+            if (!Files.exists(dbFilePath) && Files.exists(defaultOld) && !defaultOld.equals(dbFilePath)) {
+                try {
+                    Files.copy(defaultOld, dbFilePath);
+                    System.out.println("Copied existing database from " + defaultOld + " to " + dbFilePath);
+                } catch (Exception e) {
+                    System.err.println("Failed to copy existing DB: " + e.getMessage());
+                }
+            }
             
             // Step 4: Get a connection to the database (creates it if it doesn't exist)
             try (Connection c = getConnection()) {
