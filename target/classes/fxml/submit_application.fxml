@@ -3,5 +3,147 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Line?>
 
-<BorderPane xmlns="https://javafx.com/javafx">
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.finbasics.controller.SubmitApplicationController"
+            style="-fx-font-family: 'Segoe UI'; -fx-background-color: #f4f6f8;">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;">
+            <Button text="← Cancel" onAction="#cancel" style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-cursor: hand;"/>
+            <VBox>
+                <Label text="New Loan Application" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                <Label fx:id="draftLabel" text="Draft ID: #NEW-2025 • Status: Intake" style="-fx-text-fill: #95a5a6; -fx-font-size: 11;"/>
+            </VBox>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="0" style="-fx-background-color: white; -fx-pref-width: 260; -fx-border-color: #ddd; -fx-border-width: 0 1 0 0;">
+            <Label text="INTAKE WORKFLOW" style="-fx-padding: 20 20 10 20; -fx-text-fill: #95a5a6; -fx-font-size: 10; -fx-font-weight: bold;"/>
+            
+            <HBox fx:id="step1Box" alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 15 20; -fx-background-color: #e8f6f3; -fx-border-color: #27ae60; -fx-border-width: 0 0 0 4;">
+                <Label text="1" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 10; -fx-font-weight:bold;"/>
+                <VBox>
+                    <Label text="Product Selection" style="-fx-font-weight: bold;"/>
+                    <Label text="SME vs. Consumer" style="-fx-font-size: 10; -fx-text-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+
+            <HBox fx:id="step2Box" alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 15 20;">
+                <Label text="2" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 10; -fx-font-weight:bold;"/>
+                <VBox>
+                    <Label text="Borrower Profile" style="-fx-text-fill: #7f8c8d;"/>
+                    <Label text="KYC / Identity / Income" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;"/>
+                </VBox>
+            </HBox>
+
+            <HBox fx:id="step3Box" alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 15 20;">
+                <Label text="3" style="-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 10; -fx-font-weight:bold;"/>
+                <VBox>
+                    <Label text="Document Checklist" style="-fx-text-fill: #7f8c8d;"/>
+                    <Label text="Upload Requirements" style="-fx-font-size: 10; -fx-text-fill: #95a5a6;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane style="-fx-padding: 40;">
+            
+            <VBox fx:id="viewStep1" spacing="25" maxWidth="600" style="-fx-background-color: white; -fx-padding: 40; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <Label text="Select Loan Type &amp; Product" style="-fx-font-size: 22; -fx-font-weight: bold;"/>
+                <Label text="This determines the required documents and underwriting policies." style="-fx-text-fill: #7f8c8d;"/>
+                
+                <VBox spacing="10">
+                    <Label text="Category:" style="-fx-font-weight: bold;"/>
+                    <HBox spacing="15">
+                        <RadioButton fx:id="rbSme" text="SME (Business)" selected="true" style="-fx-font-size: 14;"/>
+                        <RadioButton fx:id="rbConsumer" text="Consumer (Personal)" style="-fx-font-size: 14;"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label text="Loan Product:" style="-fx-font-weight: bold;"/>
+                    <ComboBox fx:id="comboProduct" promptText="Select Product..." maxWidth="Infinity" style="-fx-font-size: 14;"/>
+                </VBox>
+
+                <VBox spacing="10">
+                     <Label text="Requested Amount ($):" style="-fx-font-weight: bold;"/>
+                     <TextField fx:id="txtAmount" promptText="e.g. 500,000"/>
+                </VBox>
+            </VBox>
+            
+            <StackPane fx:id="viewStep2" visible="false">
+                
+                <VBox fx:id="formSme" spacing="20" maxWidth="650" style="-fx-background-color: white; -fx-padding: 40; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <Label text="Business Profile (KYB)" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    
+                    <GridPane vgap="20" hgap="20">
+                        <Label text="Legal Entity Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtBizName" promptText="e.g. Acme Logistics LLC" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
+                        
+                        <Label text="Tax ID (EIN):" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtEin" promptText="XX-XXXXXXX" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        
+                        <Label text="Industry (NAICS):" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtNaics" promptText="e.g. 484121" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+
+                        <Label text="Date Established:" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-weight:bold;"/>
+                        <DatePicker fx:id="dpEstablished" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Separator/>
+                    <Label text="Primary Guarantor" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtGuarantor" promptText="Full Name"/>
+                </VBox>
+
+                <VBox fx:id="formConsumer" visible="false" spacing="20" maxWidth="650" style="-fx-background-color: white; -fx-padding: 40; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                    <Label text="Applicant Profile (KYC)" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
+                    
+                    <GridPane vgap="20" hgap="20">
+                        <Label text="Full Legal Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtConsumerName" promptText="e.g. John Smith" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"/>
+                        
+                        <Label text="SSN / Govt ID:" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtSsn" promptText="XXX-XX-XXXX" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        
+                        <Label text="Current Employer:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtEmployer" promptText="Company Name" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+
+                        <Label text="Annual Gross Income:" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-weight:bold;"/>
+                        <TextField fx:id="txtIncome" promptText="e.g. 85000" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </VBox>
+            </StackPane>
+            
+             <VBox fx:id="viewStep3" visible="false" spacing="20" maxWidth="650" style="-fx-background-color: white; -fx-padding: 40; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Required Documents" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblDocType" text="(SME Standard Pack)" style="-fx-background-color: #eee; -fx-padding: 3 8; -fx-background-radius: 4; -fx-font-size: 11;"/>
+                </HBox>
+                
+                <Label text="Please upload the following to proceed to Analysis." style="-fx-text-fill: #7f8c8d;"/>
+                
+                <VBox fx:id="docListContainer" spacing="10" VBox.vgrow="ALWAYS">
+                    </VBox>
+                
+                <HBox spacing="10" style="-fx-background-color: #fff3cd; -fx-padding: 10; -fx-border-color: #ffeeba; -fx-border-radius: 3; -fx-background-radius: 3;">
+                    <Label text="⚠" style="-fx-text-fill: #856404;"/>
+                    <Label text="Note: FinBasics will automatically run OCR validation on uploaded files." style="-fx-text-fill: #856404; -fx-font-size: 11;" wrapText="true"/>
+                </HBox>
+            </VBox>
+
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 20; -fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+            <Label fx:id="errorLabel" text="" style="-fx-text-fill: red;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="backBtn" text="Back" onAction="#goBack" disable="true" style="-fx-min-width: 90; -fx-font-size: 13;"/>
+            <Button fx:id="nextBtn" text="Next Step →" onAction="#goNext" style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-min-width: 140; -fx-font-size: 13; -fx-cursor: hand;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
