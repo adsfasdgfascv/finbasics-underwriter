@@ -15,57 +15,21 @@ import javafx.geometry.Pos;
 
 import java.io.IOException;
 
-/**
- * Three-step submission wizard:
- * 1) Borrower type, product, amount
- * 2) SME vs Consumer info
- * 3) Document checklist
- */
 public class SubmitApplicationController {
 
-    // Step containers
-    @FXML private VBox viewStep1;
-    @FXML private VBox viewStep3;
+    @FXML private VBox viewStep1, viewStep3, formSme, formConsumer, docListContainer;
     @FXML private StackPane viewStep2;
-
-    @FXML private VBox formSme;
-    @FXML private VBox formConsumer;
-
-    @FXML private HBox step1Box;
-    @FXML private HBox step2Box;
-    @FXML private HBox step3Box;
-
-    // Step 1
-    @FXML private RadioButton rbSme;
-    @FXML private RadioButton rbConsumer;
+    @FXML private HBox step1Box, step2Box, step3Box;
+    @FXML private RadioButton rbSme, rbConsumer;
     @FXML private ComboBox<String> comboProduct;
-    @FXML private TextField txtAmount;
-
-    // Step 2 SME
-    @FXML private TextField txtBizName;
-    @FXML private TextField txtEin;
-    @FXML private TextField txtNaics;
+    @FXML private TextField txtAmount, txtBizName, txtEin, txtNaics, txtGuarantor;
+    @FXML private TextField txtConsumerName, txtSsn, txtEmployer, txtIncome;
     @FXML private DatePicker dpEstablished;
-    @FXML private TextField txtGuarantor;
-
-    // Step 2 Consumer
-    @FXML private TextField txtConsumerName;
-    @FXML private TextField txtSsn;
-    @FXML private TextField txtEmployer;
-    @FXML private TextField txtIncome;
-
-    // Step 3
-    @FXML private VBox docListContainer;
-    @FXML private Label lblDocType;
-
-    // Navigation
-    @FXML private Button backBtn;
-    @FXML private Button nextBtn;
-    @FXML private Label errorLabel;
+    @FXML private Label lblDocType, errorLabel;
+    @FXML private Button backBtn, nextBtn;
 
     private int currentStep = 1;
     private ToggleGroup typeGroup;
-
     private final ApplicationService appService = new ApplicationService();
 
     @FXML
@@ -77,7 +41,6 @@ public class SubmitApplicationController {
 
         typeGroup.selectedToggleProperty().addListener((obs, o, n) -> updateProductList());
         updateProductList();
-
         updateView();
     }
 
@@ -92,14 +55,23 @@ public class SubmitApplicationController {
     }
 
     private void updateView() {
+        // FIX: Manage visibility AND layout space to prevent empty gaps
         viewStep1.setVisible(currentStep == 1);
+        viewStep1.setManaged(currentStep == 1);
+        
         viewStep2.setVisible(currentStep == 2);
+        viewStep2.setManaged(currentStep == 2);
+        
         viewStep3.setVisible(currentStep == 3);
+        viewStep3.setManaged(currentStep == 3);
 
         if (currentStep == 2) {
             boolean isSme = rbSme.isSelected();
             formSme.setVisible(isSme);
+            formSme.setManaged(isSme);
+            
             formConsumer.setVisible(!isSme);
+            formConsumer.setManaged(!isSme);
         }
 
         if (currentStep == 3) {
@@ -125,38 +97,21 @@ public class SubmitApplicationController {
     private void buildDocChecklist() {
         docListContainer.getChildren().clear();
         boolean isSme = rbSme.isSelected();
-
         lblDocType.setText(isSme ? "SME Standard Pack" : "Consumer Standard Pack");
 
-        String[] items;
-        if (isSme) {
-            items = new String[]{
-                    "Business Tax Returns (Last 2 Years)",
-                    "YTD Profit & Loss Statement",
-                    "Current Balance Sheet",
-                    "Bank Statements (Last 3 Months)",
-                    "Articles of Incorporation"
-            };
-        } else {
-            items = new String[]{
-                    "Personal Tax Returns (Last 2 Years)",
-                    "Recent Pay Stubs (Last 30 Days)",
-                    "W-2 Forms",
-                    "Government ID Copy",
-                    "Bank Statements (Last 2 Months)"
-            };
-        }
+        String[] items = isSme ? new String[]{
+                "Business Tax Returns (Last 2 Years)", "YTD Profit & Loss Statement",
+                "Current Balance Sheet", "Bank Statements (Last 3 Months)", "Articles of Incorporation"
+        } : new String[]{
+                "Personal Tax Returns (Last 2 Years)", "Recent Pay Stubs (Last 30 Days)",
+                "W-2 Forms", "Government ID Copy", "Bank Statements (Last 2 Months)"
+        };
 
         for (String text : items) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setStyle("-fx-padding:8; -fx-background-color:#f8f9fa; -fx-border-color:#e5e7eb; -fx-border-radius:4;");
-            CheckBox cb = new CheckBox();
-            Label lbl = new Label(text);
-            HBox spacer = new HBox();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            Button btn = new Button("Select File...");
-            row.getChildren().addAll(cb, lbl, spacer, btn);
+            row.getChildren().addAll(new CheckBox(), new Label(text), new HBox(){{HBox.setHgrow(this, Priority.ALWAYS);}}, new Button("Select File..."));
             docListContainer.getChildren().add(row);
         }
     }
@@ -175,47 +130,21 @@ public class SubmitApplicationController {
         }
     }
 
-    @FXML
-    private void goBack() {
-        errorLabel.setText("");
-        if (currentStep > 1) {
-            currentStep--;
-            updateView();
-        }
-    }
+    @FXML private void goBack() { errorLabel.setText(""); if (currentStep > 1) { currentStep--; updateView(); } }
 
     private boolean validateStep1() {
-        if (txtAmount.getText().isBlank()) {
-            errorLabel.setText("Requested amount is required.");
-            return false;
-        }
-        try {
-            parseMoney(txtAmount.getText());
-        } catch (NumberFormatException ex) {
-            errorLabel.setText("Invalid amount format.");
-            return false;
-        }
+        if (txtAmount.getText().isBlank()) { errorLabel.setText("Requested amount is required."); return false; }
+        try { parseMoney(txtAmount.getText()); } catch (NumberFormatException ex) { errorLabel.setText("Invalid amount format."); return false; }
         return true;
     }
 
     private boolean validateStep2() {
         if (rbSme.isSelected()) {
-            if (txtBizName.getText().isBlank()) {
-                errorLabel.setText("Business name is required for SME borrowers.");
-                return false;
-            }
+            if (txtBizName.getText().isBlank()) { errorLabel.setText("Business name is required."); return false; }
         } else {
-            if (txtConsumerName.getText().isBlank()) {
-                errorLabel.setText("Applicant name is required.");
-                return false;
-            }
+            if (txtConsumerName.getText().isBlank()) { errorLabel.setText("Applicant name is required."); return false; }
             if (!txtIncome.getText().isBlank()) {
-                try {
-                    parseMoney(txtIncome.getText());
-                } catch (NumberFormatException ex) {
-                    errorLabel.setText("Annual income must be numeric.");
-                    return false;
-                }
+                try { parseMoney(txtIncome.getText()); } catch (NumberFormatException ex) { errorLabel.setText("Income must be numeric."); return false; }
             }
         }
         return true;
@@ -225,27 +154,21 @@ public class SubmitApplicationController {
         try {
             NewApplication dto = buildDto();
             int appId = appService.submitNewApplication(dto);
-
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setTitle("Application Created");
             a.setHeaderText("Application successfully created and analyzed.");
             a.setContentText("Application ID: " + appId);
             a.showAndWait();
-
             goHome();
-        } catch (ApplicationException ex) {
-            ex.printStackTrace();
-            errorLabel.setText(ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-            errorLabel.setText("Unexpected error while creating application.");
+            errorLabel.setText(ex.getMessage());
         }
     }
 
     private NewApplication buildDto() {
         boolean isSme = rbSme.isSelected();
         NewApplication dto = new NewApplication();
-
         dto.setBorrowerType(isSme ? "SME" : "CONSUMER");
         dto.setProductType(comboProduct.getSelectionModel().getSelectedItem());
         dto.setRequestedAmount(parseMoney(txtAmount.getText()));
@@ -254,49 +177,29 @@ public class SubmitApplicationController {
             dto.setBusinessName(txtBizName.getText().trim());
             dto.setEin(txtEin.getText().trim());
             dto.setNaicsCode(txtNaics.getText().trim());
-            dto.setDateEstablishedIso(dpEstablished.getValue() != null
-                    ? dpEstablished.getValue().toString() : null);
+            dto.setDateEstablishedIso(dpEstablished.getValue() != null ? dpEstablished.getValue().toString() : null);
             dto.setGuarantorName(txtGuarantor.getText().trim());
-
             dto.setBorrowerName(dto.getBusinessName());
-            dto.setBorrowerIdNumber(dto.getEin() != null && !dto.getEin().isBlank()
-                    ? "EIN " + dto.getEin()
-                    : "SME-BORROWER");
+            dto.setBorrowerIdNumber(dto.getEin() != null && !dto.getEin().isBlank() ? "EIN " + dto.getEin() : "SME-BORROWER");
         } else {
             dto.setConsumerName(txtConsumerName.getText().trim());
             dto.setSsn(txtSsn.getText().trim());
             dto.setEmployer(txtEmployer.getText().trim());
-            if (!txtIncome.getText().isBlank()) {
-                dto.setAnnualIncome(parseMoney(txtIncome.getText()));
-            }
-
+            if (!txtIncome.getText().isBlank()) dto.setAnnualIncome(parseMoney(txtIncome.getText()));
             dto.setBorrowerName(dto.getConsumerName());
-            dto.setBorrowerIdNumber(dto.getSsn() != null && !dto.getSsn().isBlank()
-                    ? "SSN " + dto.getSsn()
-                    : "CONSUMER-BORROWER");
+            dto.setBorrowerIdNumber(dto.getSsn() != null && !dto.getSsn().isBlank() ? "SSN " + dto.getSsn() : "CONSUMER-BORROWER");
         }
-
         return dto;
     }
 
-    private double parseMoney(String txt) {
-        String cleaned = txt.replace(",", "").replace("$", "").trim();
-        return Double.parseDouble(cleaned);
-    }
-
-    @FXML
-    private void cancel() {
-        goHome();
-    }
-
+    private double parseMoney(String txt) { return Double.parseDouble(txt.replace(",", "").replace("$", "").trim()); }
+    @FXML private void cancel() { goHome(); }
     private void goHome() {
         try {
             Stage stage = (Stage) nextBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/dashboard.fxml"));
             stage.setScene(new Scene(root, 1200, 720));
             stage.setTitle("FinBasics Underwriter - Dashboard");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }

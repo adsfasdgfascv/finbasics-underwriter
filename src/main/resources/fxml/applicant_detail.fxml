@@ -23,23 +23,18 @@
     <center>
         <HBox spacing="30" style="-fx-padding:25;">
 
-            <!-- LEFT: Applicant panel -->
             <VBox spacing="20" prefWidth="380"
                   style="-fx-background-color:#cfd4dd; -fx-padding:25;">
 
-                <Label fx:id="lblApplicantHeader"
-                       text="Applicant #"
-                       style="-fx-font-size:22; -fx-font-weight:bold;"/>
+                <Label fx:id="lblApplicantHeader" text="Applicant #" style="-fx-font-size:22; -fx-font-weight:bold;"/>
 
                 <StackPane prefWidth="260" prefHeight="180"
                            style="-fx-background-color:#eef1f5; -fx-border-color:#b0b4bc; -fx-border-radius:6;">
-                    <Label text="Applicant image / logo"
-                           style="-fx-text-fill:#9aa0aa;"/>
+                    <Label text="Applicant image / logo" style="-fx-text-fill:#9aa0aa;"/>
                 </StackPane>
 
                 <VBox spacing="8">
-                    <Label fx:id="lblApplicantName" text="Name"
-                           style="-fx-font-size:14; -fx-font-weight:bold;"/>
+                    <Label fx:id="lblApplicantName" text="Name" style="-fx-font-size:14; -fx-font-weight:bold;"/>
                     <Label fx:id="lblApplicantType" text="Type"/>
                     <Label fx:id="lblApplicantProduct" text="Product"/>
                     <Label fx:id="lblApplicantAmount" text="Requested amount"/>
@@ -55,115 +50,78 @@
                 </VBox>
             </VBox>
 
-            <!-- RIGHT: Statement Analysis -->
             <VBox spacing="15" HBox.hgrow="ALWAYS"
                   style="-fx-background-color:#cfd4dd; -fx-padding:25;">
 
                 <HBox alignment="TOP_RIGHT">
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="Statement Analysis"
-                           style="-fx-font-size:22; -fx-font-weight:bold; -fx-text-fill:#111;"/>
+                    <Label text="Statement Analysis" style="-fx-font-size:22; -fx-font-weight:bold; -fx-text-fill:#111;"/>
                     <Region prefWidth="40"/>
                     <Label text="X" onMouseClicked="#closeDetail"
                            style="-fx-font-size:16; -fx-font-weight:bold; -fx-text-fill:#555; -fx-cursor:hand;"/>
                 </HBox>
 
-                <!-- SME legend -->
                 <HBox spacing="20" fx:id="boxSmeLegend">
                     <VBox>
-                        <Label text="Liquidity"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Liquidity" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="CR, QR, DSO, Inv Turnover"/>
                     </VBox>
                     <VBox>
-                        <Label text="Leverage"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Leverage" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="Debt/Equity, DSCR"/>
                     </VBox>
                     <VBox>
-                        <Label text="Profitability / DuPont"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Profitability / DuPont" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="ROA, ROE, Margin × ATO × EM"/>
                     </VBox>
                 </HBox>
 
-                <!-- Consumer legend -->
                 <HBox spacing="20" fx:id="boxConsumerLegend" visible="false" managed="false">
                     <VBox>
-                        <Label text="Affordability"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Affordability" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="DTI, free cash vs payment"/>
                     </VBox>
                     <VBox>
-                        <Label text="Collateral"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Collateral" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="LTV (secured loans)"/>
                     </VBox>
                     <VBox>
-                        <Label text="Credit Profile"
-                               style="-fx-font-weight:bold; -fx-font-size:11;"/>
+                        <Label text="Credit Profile" style="-fx-font-weight:bold; -fx-font-size:11;"/>
                         <Label text="Score band"/>
                     </VBox>
                 </HBox>
 
-                <!-- Circles grid as in wireframe -->
                 <GridPane hgap="40" vgap="30">
                     <children>
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="0" GridPane.columnIndex="0">
-                            <Label fx:id="lblCircle1" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label fx:id="lblCircle1" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
-
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="0" GridPane.columnIndex="1">
-                            <Label fx:id="lblCircle2" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label fx:id="lblCircle2" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
-
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="0" GridPane.columnIndex="2">
-                            <Label fx:id="lblCircle3" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <Label fx:id="lblCircle3" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
-
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="1" GridPane.columnIndex="1">
-                            <Label fx:id="lblCircleMiddle" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label fx:id="lblCircleMiddle" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
-
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="2" GridPane.columnIndex="0">
-                            <Label fx:id="lblCircle4" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label fx:id="lblCircle4" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
-
-                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130;
-                                          -fx-max-width:130; -fx-max-height:130; -fx-background-radius:65;"
-                                   GridPane.rowIndex="2" GridPane.columnIndex="1">
-                            <Label fx:id="lblCircle5" wrapText="true"
-                                   style="-fx-alignment:center; -fx-text-alignment:center;"/>
+                        <StackPane style="-fx-background-color:white; -fx-min-width:130; -fx-min-height:130; -fx-background-radius:65;" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <Label fx:id="lblCircle5" wrapText="true" style="-fx-alignment:center; -fx-text-alignment:center;"/>
                         </StackPane>
                     </children>
                 </GridPane>
 
-                <Label text="Section of revenues, expenses, assets/liabilities. Assess trends (growing revenues vs costs). Compute ratios like DSCR and DTI; flag any concerns (low DSCR, thin margins)."
-                       wrapText="true" style="-fx-font-size:11; -fx-text-fill:#444;"/>
+                <Label text="Section of revenues, expenses, assets/liabilities. Assess trends. Compute ratios like DSCR and DTI." wrapText="true" style="-fx-font-size:11; -fx-text-fill:#444;"/>
 
                 <HBox spacing="20" alignment="CENTER_RIGHT">
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button text="risk assessment" onAction="#openRiskAssessment"
-                            style="-fx-background-color:#3b3f58; -fx-text-fill:white; -fx-background-radius:20;
-                                   -fx-padding:10 30;"/>
-                    <Button text="Loan Structuring & Pricing" onAction="#openLoanStructuring"
-                            style="-fx-background-color:#9ea4b0; -fx-text-fill:white; -fx-background-radius:20;
-                                   -fx-padding:10 30;"/>
+                            style="-fx-background-color:#3b3f58; -fx-text-fill:white; -fx-background-radius:20; -fx-padding:10 30;"/>
+                    <Button text="Loan Structuring &amp; Pricing" onAction="#openLoanStructuring"
+                            style="-fx-background-color:#9ea4b0; -fx-text-fill:white; -fx-background-radius:20; -fx-padding:10 30;"/>
                 </HBox>
             </VBox>
         </HBox>

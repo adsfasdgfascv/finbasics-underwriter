@@ -23,14 +23,12 @@
     <center>
         <HBox spacing="20" style="-fx-padding:20;">
 
-            <!-- LEFT: step sidebar -->
             <VBox spacing="10" prefWidth="220">
-                <Label text="Workflow"
-                       style="-fx-font-size:14; -fx-font-weight:bold;"/>
+                <Label text="Workflow" style="-fx-font-size:14; -fx-font-weight:bold;"/>
 
                 <HBox fx:id="step1Box" spacing="10" alignment="CENTER_LEFT">
                     <Label text="1" style="-fx-font-weight:bold; -fx-text-fill:#2980b9;"/>
-                    <Label text="Borrower & Product"/>
+                    <Label text="Borrower &amp; Product"/>
                 </HBox>
 
                 <HBox fx:id="step2Box" spacing="10" alignment="CENTER_LEFT">
@@ -44,16 +42,12 @@
                 </HBox>
             </VBox>
 
-            <!-- RIGHT: step content -->
             <VBox spacing="15" HBox.hgrow="ALWAYS">
-
                 <Label fx:id="errorLabel" textFill="red"/>
 
-                <!-- STEP 1 -->
                 <VBox fx:id="viewStep1" spacing="15"
                       style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;">
-                    <Label text="Step 1 — Borrower & Product"
-                           style="-fx-font-size:14; -fx-font-weight:bold;"/>
+                    <Label text="Step 1 — Borrower &amp; Product" style="-fx-font-size:14; -fx-font-weight:bold;"/>
 
                     <HBox spacing="20">
                         <VBox spacing="5">
@@ -63,12 +57,10 @@
                                 <RadioButton fx:id="rbConsumer" text="Consumer"/>
                             </HBox>
                         </VBox>
-
                         <VBox spacing="5">
                             <Label text="Product"/>
                             <ComboBox fx:id="comboProduct" prefWidth="220"/>
                         </VBox>
-
                         <VBox spacing="5">
                             <Label text="Requested Amount"/>
                             <TextField fx:id="txtAmount" promptText="e.g. 150000"/>
@@ -76,77 +68,50 @@
                     </HBox>
                 </VBox>
 
-                <!-- STEP 2 -->
                 <StackPane fx:id="viewStep2">
-
-                    <!-- SME FORM -->
-                    <VBox fx:id="formSme" spacing="10"
-                          style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;">
-                        <Label text="Step 2 — SME Applicant Details"
-                               style="-fx-font-size:14; -fx-font-weight:bold;"/>
-
+                    <VBox fx:id="formSme" spacing="10" style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;">
+                        <Label text="Step 2 — SME Applicant Details" style="-fx-font-size:14; -fx-font-weight:bold;"/>
                         <GridPane hgap="15" vgap="10">
-                            <children>
-                                <Label text="Business Name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtBizName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                                <Label text="EIN" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtEin" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                                <Label text="NAICS Code" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtNaics" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                                <Label text="Date Established" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                                <DatePicker fx:id="dpEstablished" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                                <Label text="Personal Guarantor" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtGuarantor" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                            </children>
+                            <Label text="Business Name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtBizName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Label text="EIN" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtEin" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            <Label text="NAICS Code" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtNaics" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                            <Label text="Date Established" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="dpEstablished" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            <Label text="Personal Guarantor" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtGuarantor" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                         </GridPane>
                     </VBox>
 
-                    <!-- CONSUMER FORM -->
-                    <VBox fx:id="formConsumer" spacing="10"
-                          style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;"
-                          visible="false" managed="false">
-                        <Label text="Step 2 — Consumer Applicant Details"
-                               style="-fx-font-size:14; -fx-font-weight:bold;"/>
-
+                    <VBox fx:id="formConsumer" spacing="10" visible="false" managed="false"
+                          style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;">
+                        <Label text="Step 2 — Consumer Applicant Details" style="-fx-font-size:14; -fx-font-weight:bold;"/>
                         <GridPane hgap="15" vgap="10">
-                            <children>
-                                <Label text="Applicant Name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtConsumerName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                                <Label text="SSN" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtSsn" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                                <Label text="Employer" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtEmployer" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                                <Label text="Annual Income" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                                <TextField fx:id="txtIncome" GridPane.rowIndex="3" GridPane.columnIndex="1"
-                                           promptText="e.g. 85000"/>
-                            </children>
+                            <Label text="Applicant Name" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtConsumerName" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Label text="SSN" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtSsn" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            <Label text="Employer" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtEmployer" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                            <Label text="Annual Income" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <TextField fx:id="txtIncome" GridPane.rowIndex="3" GridPane.columnIndex="1" promptText="e.g. 85000"/>
                         </GridPane>
                     </VBox>
                 </StackPane>
 
-                <!-- STEP 3 -->
-                <VBox fx:id="viewStep3" spacing="10"
-                      style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;"
-                      visible="false" managed="false">
+                <VBox fx:id="viewStep3" spacing="10" visible="false" managed="false"
+                      style="-fx-background-color:white; -fx-padding:20; -fx-background-radius:8;">
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Step 3 — Documents"
-                               style="-fx-font-size:14; -fx-font-weight:bold;"/>
+                        <Label text="Step 3 — Documents" style="-fx-font-size:14; -fx-font-weight:bold;"/>
                         <Label text="(" style="-fx-text-fill:#7f8c8d;"/>
                         <Label fx:id="lblDocType" text="Pack" style="-fx-text-fill:#7f8c8d;"/>
                         <Label text=")" style="-fx-text-fill:#7f8c8d;"/>
                     </HBox>
-
                     <VBox fx:id="docListContainer" spacing="8"/>
                 </VBox>
 
-                <!-- Navigation -->
                 <HBox spacing="10" alignment="CENTER_RIGHT">
                     <Button fx:id="backBtn" text="← Back" onAction="#goBack"/>
                     <Button fx:id="nextBtn" text="Next →" onAction="#goNext"
