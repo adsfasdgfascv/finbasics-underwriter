@@ -14,7 +14,6 @@ com\finbasics\model\ApplicationSummary.class
 com\finbasics\service\ApplicationContext.class
 com\finbasics\controller\SubmitApplicationController.class
 com\finbasics\model\NewApplication.class
-com\finbasics\controller\SubmitApplicationController$1.class
 com\finbasics\model\StatementAnalysis.class
 com\finbasics\controller\LoginController.class
 com\finbasics\service\ApplicationService.class

@@ -10,9 +10,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 
+import java.io.File;
 import java.io.IOException;
 
 public class SubmitApplicationController {
@@ -111,7 +113,26 @@ public class SubmitApplicationController {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setStyle("-fx-padding:8; -fx-background-color:#f8f9fa; -fx-border-color:#e5e7eb; -fx-border-radius:4;");
-            row.getChildren().addAll(new CheckBox(), new Label(text), new HBox(){{HBox.setHgrow(this, Priority.ALWAYS);}}, new Button("Select File..."));
+            
+            CheckBox cb = new CheckBox();
+            Label lbl = new Label(text);
+            HBox spacer = new HBox();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            
+            // FIX: Add FileChooser logic
+            Button btn = new Button("Select File...");
+            btn.setOnAction(e -> {
+                FileChooser fc = new FileChooser();
+                fc.setTitle("Attach Document");
+                File f = fc.showOpenDialog(btn.getScene().getWindow());
+                if (f != null) {
+                    btn.setText(f.getName()); // Show filename
+                    btn.setStyle("-fx-background-color:#d5f5e3; -fx-text-fill:#27ae60;"); // Green style
+                    cb.setSelected(true); // Auto-check the box
+                }
+            });
+
+            row.getChildren().addAll(cb, lbl, spacer, btn);
             docListContainer.getChildren().add(row);
         }
     }
