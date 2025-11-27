@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
+<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -24,89 +23,61 @@
     <center>
         <HBox spacing="30" style="-fx-padding:30;">
 
-            <VBox spacing="0" prefWidth="320" style="-fx-background-color:white; -fx-background-radius:8; -fx-effect:dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);">
-                
-                <VBox alignment="CENTER" spacing="10" style="-fx-padding:30 20 20 20; -fx-background-color:#ecf0f1; -fx-background-radius:8 8 0 0;">
-                    <Circle radius="35" fill="#bdc3c7"/> <Label fx:id="lblApplicantName" text="Loading..." style="-fx-font-size:18; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
-                    <Label fx:id="lblApplicantId" text="..." style="-fx-font-size:12; -fx-text-fill:#7f8c8d;"/>
-                    <Label fx:id="lblStatusBadge" text="STATUS" style="-fx-padding:4 12; -fx-background-radius:12; -fx-background-color:#95a5a6; -fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:10;"/>
-                </VBox>
-
-                <Separator/>
-
-                <VBox spacing="15" style="-fx-padding:25;">
-                    <VBox spacing="2">
-                        <Label text="BORROWER TYPE" styleClass="field-label"/>
-                        <Label fx:id="lblApplicantType" text="-" styleClass="field-value"/>
+            <VBox spacing="20" prefWidth="300">
+                <VBox spacing="0" style="-fx-background-color:white; -fx-background-radius:8; -fx-effect:dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);">
+                    <VBox alignment="CENTER" spacing="10" style="-fx-padding:30 20 20 20; -fx-background-color:#ecf0f1; -fx-background-radius:8 8 0 0;">
+                        <Circle radius="35" fill="#bdc3c7"/>
+                        <Label fx:id="lblApplicantName" text="Loading..." style="-fx-font-size:18; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
+                        <Label fx:id="lblApplicantId" text="..." style="-fx-font-size:12; -fx-text-fill:#7f8c8d;"/>
+                        <Label fx:id="lblStatusBadge" text="STATUS" style="-fx-padding:4 12; -fx-background-radius:12; -fx-background-color:#95a5a6; -fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:10;"/>
                     </VBox>
-                    <VBox spacing="2">
-                        <Label text="PRODUCT" styleClass="field-label"/>
-                        <Label fx:id="lblApplicantProduct" text="-" styleClass="field-value"/>
-                    </VBox>
-                    <VBox spacing="2">
-                        <Label text="REQUESTED AMOUNT" styleClass="field-label"/>
-                        <Label fx:id="lblApplicantAmount" text="0.00" styleClass="field-value-large"/>
+                    <Separator/>
+                    <VBox spacing="15" style="-fx-padding:25;">
+                        <VBox spacing="2"><Label text="BORROWER TYPE" styleClass="field-label"/><Label fx:id="lblApplicantType" text="-" styleClass="field-value"/></VBox>
+                        <VBox spacing="2"><Label text="PRODUCT" styleClass="field-label"/><Label fx:id="lblApplicantProduct" text="-" styleClass="field-value"/></VBox>
+                        <VBox spacing="2"><Label text="REQUESTED AMOUNT" styleClass="field-label"/><Label fx:id="lblApplicantAmount" text="0.00" styleClass="field-value-large"/></VBox>
                     </VBox>
                 </VBox>
+
+                <Button text="Risk Assessment &#8594;" onAction="#openRiskAssessment" maxWidth="Infinity"
+                        style="-fx-background-color:#2c3e50; -fx-text-fill:white; -fx-font-weight:bold; -fx-padding:12; -fx-cursor:hand; -fx-background-radius:6;"/>
             </VBox>
 
             <VBox spacing="20" HBox.hgrow="ALWAYS">
-                
                 <HBox alignment="CENTER_LEFT">
-                    <Label text="Statement Analysis" style="-fx-font-size:24; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
+                    <Label text="Financial Ratios &amp; Metrics" style="-fx-font-size:24; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
                     <Region HBox.hgrow="ALWAYS"/>
                     <Label fx:id="lblAnalysisDate" text="Analyzed on: -" style="-fx-text-fill:#7f8c8d;"/>
                 </HBox>
 
-                <Label text="Key Performance Indicators" style="-fx-font-weight:bold; -fx-text-fill:#7f8c8d;"/>
-                
-                <GridPane hgap="15" vgap="15">
+                <GridPane hgap="15" vgap="15" VBox.vgrow="ALWAYS">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33"/>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33"/>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="25"/>
                     </columnConstraints>
+                    <rowConstraints>
+                         <RowConstraints vgrow="ALWAYS" percentHeight="33"/>
+                         <RowConstraints vgrow="ALWAYS" percentHeight="33"/>
+                         <RowConstraints vgrow="ALWAYS" percentHeight="33"/>
+                    </rowConstraints>
 
-                    <VBox styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                        <Label fx:id="lblM1Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM1Value" text="-" styleClass="metric-value"/>
-                    </VBox>
-                    <VBox styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                        <Label fx:id="lblM2Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM2Value" text="-" styleClass="metric-value"/>
-                    </VBox>
-                    <VBox styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                        <Label fx:id="lblM3Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM3Value" text="-" styleClass="metric-value"/>
-                    </VBox>
-                    <VBox styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                        <Label fx:id="lblM4Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM4Value" text="-" styleClass="metric-value"/>
-                    </VBox>
-                    <VBox styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <Label fx:id="lblM5Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM5Value" text="-" styleClass="metric-value"/>
-                    </VBox>
-                    <VBox styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                        <Label fx:id="lblM6Title" text="METRIC" styleClass="metric-title"/>
-                        <Label fx:id="lblM6Value" text="-" styleClass="metric-value"/>
-                    </VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="0"><Label fx:id="lblM1T" styleClass="metric-title"/><Label fx:id="lblM1V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="0"><Label fx:id="lblM2T" styleClass="metric-title"/><Label fx:id="lblM2V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="0"><Label fx:id="lblM3T" styleClass="metric-title"/><Label fx:id="lblM3V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="3" GridPane.rowIndex="0"><Label fx:id="lblM4T" styleClass="metric-title"/><Label fx:id="lblM4V" styleClass="metric-value"/></VBox>
+
+                    <VBox styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="1"><Label fx:id="lblM5T" styleClass="metric-title"/><Label fx:id="lblM5V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="1"><Label fx:id="lblM6T" styleClass="metric-title"/><Label fx:id="lblM6V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="1"><Label fx:id="lblM7T" styleClass="metric-title"/><Label fx:id="lblM7V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="3" GridPane.rowIndex="1"><Label fx:id="lblM8T" styleClass="metric-title"/><Label fx:id="lblM8V" styleClass="metric-value"/></VBox>
+
+                    <VBox styleClass="metric-card" GridPane.columnIndex="0" GridPane.rowIndex="2"><Label fx:id="lblM9T" styleClass="metric-title"/><Label fx:id="lblM9V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="1" GridPane.rowIndex="2"><Label fx:id="lblM10T" styleClass="metric-title"/><Label fx:id="lblM10V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="2" GridPane.rowIndex="2"><Label fx:id="lblM11T" styleClass="metric-title"/><Label fx:id="lblM11V" styleClass="metric-value"/></VBox>
+                    <VBox styleClass="metric-card" GridPane.columnIndex="3" GridPane.rowIndex="2"><Label fx:id="lblM12T" styleClass="metric-title"/><Label fx:id="lblM12V" styleClass="metric-value"/></VBox>
                 </GridPane>
-
-                <Separator/>
-                
-                <VBox spacing="5" VBox.vgrow="ALWAYS">
-                    <Label text="Credit Assessment" style="-fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
-                    <TextArea fx:id="txtNotes" editable="false" wrapText="true"
-                              style="-fx-control-inner-background:#fdfdfd; -fx-background-color:transparent; -fx-border-color:#e5e7eb; -fx-border-radius:4;"/>
-                </VBox>
-
-                <HBox spacing="15" alignment="CENTER_RIGHT">
-                    <Button text="Generate PDF Report" style="-fx-base:#ecf0f1; -fx-cursor:hand;"/>
-                    <Button text="Pricing &amp; Structuring &#8594;" onAction="#openLoanStructuring"
-                            style="-fx-background-color:#27ae60; -fx-text-fill:white; -fx-font-weight:bold; -fx-padding:10 20; -fx-cursor:hand;"/>
-                </HBox>
-
             </VBox>
         </HBox>
     </center>
