@@ -154,3 +154,5 @@
         </VBox>
     </center>
 </BorderPane>
+ git config --global user.email "23104452@usc.edu.ph"
+  git config --global user.name "adsfasdgfascv"
