@@ -1,14 +1,22 @@
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\security\PasswordHasher.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\persistence\Database.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\persistence\UserRepository.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\App.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\controller\DashboardController.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\controller\SubmitApplicationController.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\model\User.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\persistence\AuditRepository.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\service\Session.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\controller\LoginController.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\DbCheck.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\service\AuthException.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\Navigator.java
-C:\Users\gabie\OneDrive\Documents\finbasics-underwriter\src\main\java\com\finbasics\service\AuthService.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\persistence\ApplicationRepository.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\persistence\StatementAnalysisRepository.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\model\StatementAnalysis.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\Session.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\persistence\UserRepository.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\App.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\model\NewApplication.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\persistence\Database.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\Navigator.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\ApplicationService.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\model\ApplicationSummary.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\persistence\AuditRepository.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\controller\DashboardController.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\DbCheck.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\security\PasswordHasher.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\StatementAnalysisService.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\controller\SubmitApplicationController.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\model\User.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\controller\LoginController.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\AuthService.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\ApplicationException.java
+C:\Users\mark anthony\Documents\Proyekto\finbasics-underwriter\src\main\java\com\finbasics\service\AuthException.java

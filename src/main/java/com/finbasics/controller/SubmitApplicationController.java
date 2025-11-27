@@ -1,5 +1,9 @@
 package com.finbasics.controller;
 
+import com.finbasics.model.NewApplication;
+import com.finbasics.service.ApplicationException;
+import com.finbasics.service.ApplicationService;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.scene.layout.Priority;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Region;
+
 public class SubmitApplicationController {
 
     // --- Navigation UI ---
@@ -26,16 +31,18 @@ public class SubmitApplicationController {
     @FXML private RadioButton rbSme, rbConsumer;
     @FXML private ComboBox<String> comboProduct;
     @FXML private TextField txtAmount;
-    
+
     // SME Inputs
     @FXML private TextField txtBizName, txtEin, txtNaics, txtGuarantor;
     @FXML private DatePicker dpEstablished;
-    
+
     // Consumer Inputs
     @FXML private TextField txtConsumerName, txtSsn, txtEmployer, txtIncome;
 
     private int currentStep = 1;
     private ToggleGroup typeGroup;
+
+    private final ApplicationService appService = new ApplicationService();
 
     @FXML
     public void initialize() {
@@ -44,9 +51,14 @@ public class SubmitApplicationController {
         rbSme.setToggleGroup(typeGroup);
         rbConsumer.setToggleGroup(typeGroup);
 
+        // Default to SME
+        rbSme.setSelected(true);
+
         // 2. Listen for Type Change to update Product List
         typeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateProductList());
         updateProductList(); // Init defaults
+
+        updateView(); // ensure step 1 is visible
     }
 
     private void updateProductList() {
@@ -67,10 +79,10 @@ public class SubmitApplicationController {
     private void goNext() {
         errorLabel.setText(""); // Clear errors
 
-        // Validation logic could go here
-        if (currentStep == 1 && txtAmount.getText().isEmpty()) {
-            errorLabel.setText("Please enter a requested amount.");
-            return;
+        if (currentStep == 1) {
+            if (!validateStep1()) return;
+        } else if (currentStep == 2) {
+            if (!validateStep2()) return;
         }
 
         if (currentStep < 3) {
@@ -88,6 +100,43 @@ public class SubmitApplicationController {
             currentStep--;
             updateView();
         }
+    }
+
+    private boolean validateStep1() {
+        if (txtAmount.getText().isBlank()) {
+            errorLabel.setText("Please enter a requested amount.");
+            return false;
+        }
+        try {
+            parseMonetary(txtAmount.getText());
+        } catch (NumberFormatException ex) {
+            errorLabel.setText("Invalid amount format. Please enter a numeric value.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateStep2() {
+        if (rbSme.isSelected()) {
+            if (txtBizName.getText().isBlank()) {
+                errorLabel.setText("Business name is required for SME applications.");
+                return false;
+            }
+        } else {
+            if (txtConsumerName.getText().isBlank()) {
+                errorLabel.setText("Applicant name is required for consumer applications.");
+                return false;
+            }
+            if (!txtIncome.getText().isBlank()) {
+                try {
+                    parseMonetary(txtIncome.getText());
+                } catch (NumberFormatException ex) {
+                    errorLabel.setText("Invalid annual income format.");
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void updateView() {
@@ -118,16 +167,14 @@ public class SubmitApplicationController {
         highlightStep(step3Box, currentStep >= 3);
     }
 
-    /**
-     * Dynamically builds the document checklist based on Loan Type.
-     * This fulfills the requirement for "Policy-Driven Checklists".
-     */
     private void generateDocChecklist() {
         docListContainer.getChildren().clear();
         boolean isSme = rbSme.isSelected();
-        
+
         lblDocType.setText(isSme ? "(SME Standard Pack)" : "(Consumer Standard Pack)");
-        lblDocType.setStyle(isSme ? "-fx-background-color: #d6eaf8; -fx-text-fill: #2980b9;" : "-fx-background-color: #d5f5e3; -fx-text-fill: #27ae60;");
+        lblDocType.setStyle(isSme
+                ? "-fx-background-color: #d6eaf8; -fx-text-fill: #2980b9;"
+                : "-fx-background-color: #d5f5e3; -fx-text-fill: #27ae60;");
 
         String[] requirements;
         if (isSme) {
@@ -148,13 +195,12 @@ public class SubmitApplicationController {
             };
         }
 
-        // Create UI row for each requirement
         for (String req : requirements) {
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setStyle("-fx-padding: 10; -fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-radius: 4;");
-            
-            CheckBox cb = new CheckBox(); // Just for visual tracking
+
+            CheckBox cb = new CheckBox();
             Label lbl = new Label(req);
             lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
             Region spacer = new Region();
@@ -181,17 +227,66 @@ public class SubmitApplicationController {
     }
 
     private void submitApplication() {
-        // TODO: Map to Database (SQLite)
-        // 1. Create 'Borrower' record
-        // 2. Create 'Application' record (Status = INTAKE)
-        // 3. Create 'Task' records based on missing docs
-        
-        System.out.println("DEBUG: Submitting Application...");
-        System.out.println("Type: " + (rbSme.isSelected() ? "SME" : "Consumer"));
-        System.out.println("Amount: " + txtAmount.getText());
-        
-        // Return to Hub/Dashboard
-        returnToDashboard();
+        try {
+            NewApplication dto = buildNewApplicationDto();
+            int appId = appService.submitNewApplication(dto);
+
+            // Optional: confirmation dialog
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("Application Created");
+            a.setHeaderText("Application successfully created");
+            a.setContentText("Application ID: " + appId + " has been analyzed and added to the applicants list.");
+            a.showAndWait();
+
+            returnToDashboard();
+        } catch (ApplicationException ex) {
+            ex.printStackTrace();
+            errorLabel.setText(ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            errorLabel.setText("Unexpected error while creating application.");
+        }
+    }
+
+    private NewApplication buildNewApplicationDto() {
+        boolean isSme = rbSme.isSelected();
+
+        NewApplication dto = new NewApplication();
+        dto.setBorrowerType(isSme ? "SME" : "CONSUMER");
+        dto.setProductType(comboProduct.getSelectionModel().getSelectedItem());
+        dto.setRequestedAmount(parseMonetary(txtAmount.getText()));
+
+        if (isSme) {
+            dto.setBusinessName(txtBizName.getText().trim());
+            dto.setEin(txtEin.getText().trim());
+            dto.setNaicsCode(txtNaics.getText().trim());
+            dto.setGuarantorName(txtGuarantor.getText().trim());
+            dto.setDateEstablishedIso(dpEstablished.getValue() != null ? dpEstablished.getValue().toString() : null);
+
+            dto.setBorrowerName(dto.getBusinessName());
+            dto.setBorrowerIdNumber(dto.getEin() != null && !dto.getEin().isBlank()
+                    ? "EIN " + dto.getEin()
+                    : "SME-BORROWER");
+        } else {
+            dto.setConsumerName(txtConsumerName.getText().trim());
+            dto.setSsn(txtSsn.getText().trim());
+            dto.setEmployer(txtEmployer.getText().trim());
+            if (!txtIncome.getText().isBlank()) {
+                dto.setAnnualIncome(parseMonetary(txtIncome.getText()));
+            }
+
+            dto.setBorrowerName(dto.getConsumerName());
+            dto.setBorrowerIdNumber(dto.getSsn() != null && !dto.getSsn().isBlank()
+                    ? "SSN " + dto.getSsn()
+                    : "CONSUMER-BORROWER");
+        }
+
+        return dto;
+    }
+
+    private double parseMonetary(String text) {
+        String cleaned = text.replace(",", "").replace("$", "").trim();
+        return Double.parseDouble(cleaned);
     }
 
     private void returnToDashboard() {
@@ -199,6 +294,7 @@ public class SubmitApplicationController {
             Stage stage = (Stage) nextBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/dashboard.fxml"));
             stage.setScene(new Scene(root, 1200, 720));
+            stage.setTitle("FinBasics Underwriter - Dashboard");
         } catch (Exception e) {
             e.printStackTrace();
         }

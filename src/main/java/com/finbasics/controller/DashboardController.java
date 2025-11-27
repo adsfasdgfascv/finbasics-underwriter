@@ -1,46 +1,73 @@
 package com.finbasics.controller;
 
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
+import com.finbasics.model.ApplicationSummary;
+import com.finbasics.service.ApplicationService;
+import com.finbasics.service.Session;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import com.finbasics.service.Session;
 
 public class DashboardController {
 
     @FXML private Label userLabel;
-    @FXML private TableView<ApplicationModel> appTable;
-    @FXML private TableColumn<ApplicationModel, String> colId;
-    @FXML private TableColumn<ApplicationModel, String> colEntity;
-    @FXML private TableColumn<ApplicationModel, String> colProduct;
-    @FXML private TableColumn<ApplicationModel, String> colAmount;
-    @FXML private TableColumn<ApplicationModel, String> colStatus;
-    @FXML private TableColumn<ApplicationModel, String> colSla;
-    @FXML private TableColumn<ApplicationModel, Void> colAction; // For buttons
-    
-    @FXML private ListView<String> taskListView;
+
+    // Applicants list (right side in wireframe)
+    @FXML private TableView<ApplicationSummary> appTable;
+    @FXML private TableColumn<ApplicationSummary, String> colAppNo;
+    @FXML private TableColumn<ApplicationSummary, String> colBorrower;
+    @FXML private TableColumn<ApplicationSummary, String> colProduct;
+    @FXML private TableColumn<ApplicationSummary, String> colAmount;
+    @FXML private TableColumn<ApplicationSummary, String> colStatus;
+    @FXML private TableColumn<ApplicationSummary, String> colCreated;
+
+    // Detail + Statement Analysis panel
+    @FXML private Label lblApplicantName;
+    @FXML private Label lblApplicantProduct;
+    @FXML private Label lblApplicantAmount;
+    @FXML private Label lblApplicantStatus;
+    @FXML private Label lblApplicantCreated;
+
+    @FXML private Label lblDscr;
+    @FXML private Label lblCurrentRatio;
+    @FXML private Label lblDebtToEquity;
+    @FXML private Label lblNetMargin;
+
+    @FXML private Button btnNewApplication;
+
+    private final ApplicationService appService = new ApplicationService();
 
     @FXML
     public void initialize() {
-        // 1. Initialize User Context
-        // In real app, get this from Session.currentUser
-        userLabel.setText("Analyst: Admin User");
+        var user = Session.getCurrentUser();
+        if (user != null) {
+            userLabel.setText("Analyst: " + user.getusername());
+        } else {
+            userLabel.setText("Analyst: (not logged in)");
+        }
 
-        // 2. Setup Smart Queue Columns
-        colId.setCellValueFactory(cell -> cell.getValue().idProperty());
-        colEntity.setCellValueFactory(cell -> cell.getValue().entityProperty());
-        colProduct.setCellValueFactory(cell -> cell.getValue().productProperty());
-        colAmount.setCellValueFactory(cell -> cell.getValue().amountProperty());
+        setupTable();
+        loadApplicants();
+
+        appTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> showSummary(newSel));
+    }
+
+    private void setupTable() {
+        colAppNo.setCellValueFactory(cell -> cell.getValue().applicationNumberProperty());
+        colBorrower.setCellValueFactory(cell -> cell.getValue().borrowerNameProperty());
+        colProduct.setCellValueFactory(cell -> cell.getValue().productTypeProperty());
+        colAmount.setCellValueFactory(cell ->
+                new SimpleStringProperty(String.format("$%,.0f", cell.getValue().getRequestedAmount())));
         colStatus.setCellValueFactory(cell -> cell.getValue().statusProperty());
-        colSla.setCellValueFactory(cell -> cell.getValue().slaProperty());
-        
-        // Custom Rendering for "Micro-States" (Color coding)
+        colCreated.setCellValueFactory(cell -> cell.getValue().createdAtProperty());
+
+        // Simple visual cue for status
         colStatus.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -48,81 +75,95 @@ public class DashboardController {
                 if (empty || item == null) {
                     setText(null);
                     setStyle("");
+                    return;
+                }
+                setText(item);
+                if (item.startsWith("ANALYZED")) {
+                    setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                } else if (item.startsWith("INTAKE") || item.startsWith("REVIEW")) {
+                    setStyle("-fx-text-fill: #d35400; -fx-font-weight: bold;");
                 } else {
-                    setText(item);
-                    // Visual cues for states
-                    if (item.contains("Review")) setStyle("-fx-text-fill: #d35400; -fx-font-weight: bold;"); // Amber
-                    else if (item.contains("Docs")) setStyle("-fx-text-fill: #7f8c8d;"); // Grey
-                    else if (item.contains("Approved")) setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;"); // Green
+                    setStyle("");
                 }
             }
         });
+    }
 
-        // 3. Load Dummy Data (Simulating Database Fetch)
-        ObservableList<ApplicationModel> data = FXCollections.observableArrayList(
-            new ApplicationModel("A-101", "Acme Logistics LLC", "SME Term", "$1,200,000", "Analyst Review", "4h left"),
-            new ApplicationModel("A-102", "Beta Retailers Inc", "Line of Credit", "$500,000", "Pending Docs", "2 days"),
-            new ApplicationModel("A-103", "John Doe Properties", "CRE Mortgage", "$3,500,000", "Structuring", "1 day")
-        );
-        appTable.setItems(data);
+    private void loadApplicants() {
+        try {
+            ObservableList<ApplicationSummary> data = appService.loadApplicationSummaries();
+            appTable.setItems(data);
+            if (!data.isEmpty()) {
+                appTable.getSelectionModel().selectFirst();
+                showSummary(data.getFirst());
+            } else {
+                clearSummary();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            clearSummary();
+        }
+    }
 
-        // 4. Setup Task Inbox (The "SLA Monitor")
-        ObservableList<String> tasks = FXCollections.observableArrayList(
-            "⚠ Review Tax Returns for Acme Logistics (SLA Warning)",
-            "• Clarify ownership structure for Beta Retailers",
-            "• Validate collateral appraisal for John Doe"
-        );
-        taskListView.setItems(tasks);
+    private void showSummary(ApplicationSummary s) {
+        if (s == null) {
+            clearSummary();
+            return;
+        }
+
+        lblApplicantName.setText(s.getBorrowerName());
+        lblApplicantProduct.setText(s.getProductType());
+        lblApplicantAmount.setText(String.format("$%,.0f", s.getRequestedAmount()));
+        lblApplicantStatus.setText(s.getStatus());
+        lblApplicantCreated.setText(s.getCreatedAt());
+
+        lblDscr.setText(formatRatio(s.getDscr()));
+        lblCurrentRatio.setText(formatRatio(s.getCurrentRatio()));
+        lblDebtToEquity.setText(formatRatio(s.getDebtToEquity()));
+        lblNetMargin.setText(String.format("%.1f%%", s.getNetMargin() * 100.0));
+    }
+
+    private void clearSummary() {
+        lblApplicantName.setText("No applicant selected");
+        lblApplicantProduct.setText("-");
+        lblApplicantAmount.setText("-");
+        lblApplicantStatus.setText("-");
+        lblApplicantCreated.setText("-");
+
+        lblDscr.setText("-");
+        lblCurrentRatio.setText("-");
+        lblDebtToEquity.setText("-");
+        lblNetMargin.setText("-");
+    }
+
+    private String formatRatio(double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value) || value == 0.0) {
+            return "-";
+        }
+        return String.format("%.2f×", value);
     }
 
     @FXML
-    public void openNewApplication(ActionEvent event) {
+    public void openNewApplication() {
         try {
-            Stage stage = (Stage) appTable.getScene().getWindow();
-            // Load the Wizard Framework
+            Stage stage = (Stage) btnNewApplication.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/submit_application.fxml"));
             stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle("FinBasics - New Application Wizard");
+            stage.setTitle("FinBasics - New Application");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    public void logout(ActionEvent event) {
-        Session.clear();
+    public void logout() {
+        com.finbasics.service.Session.clear();
         try {
-            Stage stage = (Stage) appTable.getScene().getWindow();
+            Stage stage = (Stage) btnNewApplication.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
             stage.setScene(new Scene(root, 1200, 720));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    // --- Internal Model for TableView (Simulation) ---
-    public static class ApplicationModel {
-        private final SimpleStringProperty id;
-        private final SimpleStringProperty entity;
-        private final SimpleStringProperty product;
-        private final SimpleStringProperty amount;
-        private final SimpleStringProperty status;
-        private final SimpleStringProperty sla;
-
-        public ApplicationModel(String id, String entity, String product, String amount, String status, String sla) {
-            this.id = new SimpleStringProperty(id);
-            this.entity = new SimpleStringProperty(entity);
-            this.product = new SimpleStringProperty(product);
-            this.amount = new SimpleStringProperty(amount);
-            this.status = new SimpleStringProperty(status);
-            this.sla = new SimpleStringProperty(sla);
-        }
-        
-        public StringProperty idProperty() { return id; }
-        public StringProperty entityProperty() { return entity; }
-        public StringProperty productProperty() { return product; }
-        public StringProperty amountProperty() { return amount; }
-        public StringProperty statusProperty() { return status; }
-        public StringProperty slaProperty() { return sla; }
     }
 }

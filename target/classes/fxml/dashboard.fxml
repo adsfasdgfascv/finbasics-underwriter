@@ -1,80 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.shape.Circle?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.finbasics.controller.DashboardController"
             style="-fx-font-family: 'Segoe UI'; -fx-font-size: 12; -fx-background-color: #f4f6f8;">
 
+    <!-- TOP BAR -->
     <top>
-        <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #2c3e50; -fx-padding: 10 20;">
-            <Label text="FINBASICS" style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 16;"/>
-            <Label text="UNDERWRITER" style="-fx-text-fill: #95a5a6; -fx-font-weight: bold; -fx-font-size: 16;"/>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-background-color: #2c3e50; -fx-padding: 10 20;">
+            <Label text="FINBASICS"
+                   style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 16;"/>
+            <Label text="UNDERWRITER"
+                   style="-fx-text-fill: #95a5a6; -fx-font-weight: bold; -fx-font-size: 16;"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="userLabel" text="Analyst: Admin" style="-fx-text-fill: white;"/>
-            <Button text="Logout" onAction="#logout" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+            <Label fx:id="userLabel" text="Analyst: Admin"
+                   style="-fx-text-fill: white;"/>
+            <Button text="Logout"
+                    onAction="#logout"
+                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
         </HBox>
     </top>
 
+    <!-- MAIN CONTENT -->
     <center>
         <VBox spacing="20" style="-fx-padding: 20;">
-            
+
+            <!-- KPI ROW (kept from your original design) -->
             <HBox spacing="15">
-                <VBox styleClass="kpi-card" style="-fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1); -fx-min-width: 200;">
-                    <Label text="PIPELINE VOLUME" style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
-                    <Label text="12 Active" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                    <Label text="▲ 3 New this week" style="-fx-text-fill: #27ae60; -fx-font-size: 11;"/>
+                <VBox style="-fx-background-color: white; -fx-padding: 15;
+                              -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);
+                              -fx-min-width: 200;">
+                    <Label text="PIPELINE VOLUME"
+                           style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                    <Label text="12 Active"
+                           style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <Label text="▲ 3 New this week"
+                           style="-fx-text-fill: #27ae60; -fx-font-size: 11;"/>
                 </VBox>
 
-                <VBox styleClass="kpi-card" style="-fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1); -fx-min-width: 200;">
-                    <Label text="SLA BREACHES" style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
-                    <Label text="2 Critical" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #c0392b;"/>
-                    <Label text="Requires immediate attention" style="-fx-text-fill: #c0392b; -fx-font-size: 11;"/>
+                <VBox style="-fx-background-color: white; -fx-padding: 15;
+                              -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);
+                              -fx-min-width: 200;">
+                    <Label text="SLA BREACHES"
+                           style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                    <Label text="2 Critical"
+                           style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #c0392b;"/>
+                    <Label text="Requires immediate attention"
+                           style="-fx-text-fill: #c0392b; -fx-font-size: 11;"/>
                 </VBox>
 
-                <VBox styleClass="kpi-card" style="-fx-background-color: white; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1); -fx-min-width: 200;">
-                    <Label text="AVG PORTFOLIO DSCR" style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
-                    <Label text="1.35x" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
-                    <Label text="Target: >1.25x" style="-fx-text-fill: #7f8c8d; -fx-font-size: 11;"/>
+                <VBox style="-fx-background-color: white; -fx-padding: 15;
+                              -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);
+                              -fx-min-width: 200;">
+                    <Label text="AVG PORTFOLIO DSCR"
+                           style="-fx-text-fill: #7f8c8d; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                    <Label text="1.35x"
+                           style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
+                    <Label text="Target: >1.25x"
+                           style="-fx-text-fill: #7f8c8d; -fx-font-size: 11;"/>
                 </VBox>
-                
+
                 <Region HBox.hgrow="ALWAYS"/>
-                
-                <Button text="+ New Application" onAction="#openNewApplication" 
-                        style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-size: 14;"/>
+
+                <Button fx:id="btnNewApplication"
+                        text="+ New Application"
+                        onAction="#openNewApplication"
+                        style="-fx-background-color: #2980b9; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-padding: 10 20;
+                               -fx-cursor: hand; -fx-font-size: 14;"/>
             </HBox>
 
-            <SplitPane dividerPositions="0.75" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-                
-                <VBox spacing="10" style="-fx-padding: 0 10 0 0;">
-                    <Label text="Active Applications (Smart Queue)" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    <TableView fx:id="appTable" VBox.vgrow="ALWAYS" style="-fx-base: white;">
-                        <columns>
-                            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-                            <TableColumn fx:id="colEntity" text="Borrower / Entity" prefWidth="200"/>
-                            <TableColumn fx:id="colProduct" text="Product" prefWidth="100"/>
-                            <TableColumn fx:id="colAmount" text="Amount" prefWidth="100"/>
-                            <TableColumn fx:id="colStatus" text="Micro-State" prefWidth="150"/>
-                            <TableColumn fx:id="colSla" text="SLA Time" prefWidth="100"/>
-                            <TableColumn fx:id="colAction" text="Action" prefWidth="80"/>
-                        </columns>
-                        <placeholder>
-                            <Label text="No active applications. Start a new one above."/>
-                        </placeholder>
-                    </TableView>
-                </VBox>
+            <!-- Applicants + Statement Analysis -->
+            <SplitPane orientation="VERTICAL"
+                       dividerPositions="0.55"
+                       VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: transparent;">
 
-                <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 0 0 0 1;">
-                    <Label text="My Tasks (Priority)" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
-                    
-                    <ListView fx:id="taskListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
-                    
-                    <Button text="View All Notifications" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #2980b9; -fx-underline: true;"/>
-                </VBox>
+                <!-- TOP: Active Applications Table -->
+                <items>
+                    <VBox spacing="10">
+                        <Label text="Active Applications (Smart Queue)"
+                               style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                        <TableView fx:id="appTable" VBox.vgrow="ALWAYS"
+                                   style="-fx-base: white;">
+                            <columns>
+                                <!-- IDs match DashboardController fields -->
+                                <TableColumn fx:id="colAppNo" text="Application #" prefWidth="130"/>
+                                <TableColumn fx:id="colBorrower" text="Borrower / Entity" prefWidth="220"/>
+                                <TableColumn fx:id="colProduct" text="Product" prefWidth="160"/>
+                                <TableColumn fx:id="colAmount" text="Amount" prefWidth="120"/>
+                                <TableColumn fx:id="colStatus" text="Status" prefWidth="120"/>
+                                <TableColumn fx:id="colCreated" text="Created" prefWidth="180"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No active applications. Start a new one above."/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+
+                    <!-- BOTTOM: Applicant Detail + Statement Analysis -->
+                    <VBox spacing="15"
+                          style="-fx-background-color: white; -fx-background-radius: 12;
+                                 -fx-padding: 15; -fx-border-color: #ddd; -fx-border-width: 1 0 0 0;">
+                        <HBox spacing="40">
+                            <!-- Applicant Info -->
+                            <VBox spacing="5">
+                                <Label text="Applicant"
+                                       style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+                                <Label fx:id="lblApplicantName" text="No applicant selected"/>
+                                <Label fx:id="lblApplicantProduct" text="-"/>
+                                <Label fx:id="lblApplicantAmount" text="-"/>
+                                <Label fx:id="lblApplicantStatus" text="-"/>
+                                <Label fx:id="lblApplicantCreated" text="-"/>
+                            </VBox>
+
+                            <!-- Statement Analysis Summary -->
+                            <VBox spacing="10">
+                                <Label text="Statement Analysis"
+                                       style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                                <GridPane hgap="20" vgap="8">
+                                    <children>
+                                        <Label text="DSCR:"
+                                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <Label fx:id="lblDscr" text="-"
+                                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                        <Label text="Current Ratio:"
+                                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <Label fx:id="lblCurrentRatio" text="-"
+                                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                        <Label text="Debt / Equity:"
+                                               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <Label fx:id="lblDebtToEquity" text="-"
+                                               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                        <Label text="Net Margin:"
+                                               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                        <Label fx:id="lblNetMargin" text="-"
+                                               GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                    </children>
+                                </GridPane>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </items>
             </SplitPane>
         </VBox>
     </center>
