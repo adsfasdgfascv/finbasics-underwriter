@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.finbasics.controller.RiskAssessmentController"
@@ -11,15 +12,19 @@
 
     <top>
         <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color:#2c3e50; -fx-padding:15 25;">
-            <Button text="&#8592; Back to Analysis" onAction="#goBack" style="-fx-background-color:rgba(255,255,255,0.1); -fx-text-fill:white; -fx-cursor:hand;"/>
-            <Label text="Underwriting Risk Assessment" style="-fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:16;"/>
+            <Button text="&#8592; Back to Analysis" onAction="#goBack"
+                    style="-fx-background-color:rgba(255,255,255,0.1); -fx-text-fill:white; -fx-cursor:hand; -fx-background-radius:4;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Risk Assessment &amp; Decision" style="-fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:16;"/>
         </HBox>
     </top>
 
     <center>
         <HBox spacing="30" style="-fx-padding:30;">
-            <VBox spacing="20" prefWidth="320">
-                 <VBox styleClass="metric-card" spacing="15" style="-fx-padding:20;">
+            
+            <VBox spacing="20" prefWidth="340">
+                
+                <VBox styleClass="metric-card" spacing="10" style="-fx-padding:20;">
                     <HBox alignment="CENTER_LEFT" spacing="15">
                         <Circle radius="25" fill="#bdc3c7"/>
                         <VBox>
@@ -28,42 +33,49 @@
                         </VBox>
                     </HBox>
                     <Separator/>
-                    <VBox spacing="10">
-                         <HBox alignment="CENTER_LEFT"><Label text="Product:" textFill="#7f8c8d" prefWidth="80"/><Label fx:id="lblProduct" text="-" style="-fx-font-weight:bold;"/></HBox>
-                         <HBox alignment="CENTER_LEFT"><Label text="Amount:" textFill="#7f8c8d" prefWidth="80"/><Label fx:id="lblAmount" text="0" style="-fx-font-weight:bold;"/></HBox>
+                    <VBox spacing="5">
+                        <HBox><Label text="Product:" prefWidth="100" style="-fx-text-fill:#7f8c8d;"/><Label fx:id="lblProduct" text="-" style="-fx-font-weight:bold;"/></HBox>
+                        <HBox><Label text="Amount:" prefWidth="100" style="-fx-text-fill:#7f8c8d;"/><Label fx:id="lblAmount" text="0" style="-fx-font-weight:bold;"/></HBox>
                     </VBox>
                 </VBox>
 
-                <VBox styleClass="metric-card" alignment="CENTER" style="-fx-padding: 30;">
-                    <Label text="CREDIT TIER" styleClass="metric-title"/>
-                    <Label fx:id="lblRiskGrade" text="..." style="-fx-font-size:32; -fx-font-weight:800; -fx-text-fill:#2c3e50;"/>
-                    <Label fx:id="lblRecommendation" text="..." style="-fx-text-fill:#7f8c8d;" wrapText="true"/>
+                <VBox styleClass="metric-card" alignment="CENTER" spacing="5" VBox.vgrow="ALWAYS" style="-fx-padding:30;">
+                    <Label text="CREDIT TIER" style="-fx-font-size:11; -fx-font-weight:bold; -fx-text-fill:#7f8c8d;"/>
+                    <Label fx:id="lblRiskGrade" text="-" style="-fx-font-size:48; -fx-font-weight:800; -fx-text-fill:#2c3e50;"/>
+                    <Label fx:id="lblRecommendation" text="Pending..." style="-fx-text-fill:#7f8c8d; -fx-text-alignment:CENTER;" wrapText="true"/>
                 </VBox>
+
             </VBox>
 
-            <VBox spacing="15" HBox.hgrow="ALWAYS">
-                <Label text="Risk Factor Analysis" style="-fx-font-size:18; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
+            <VBox spacing="20" HBox.hgrow="ALWAYS">
                 
-                <ScrollPane fitToWidth="true" style="-fx-background-color:transparent; -fx-background:transparent;" VBox.vgrow="ALWAYS">
-                     <VBox fx:id="factorsContainer" spacing="8" style="-fx-padding:5;"/>
-                </ScrollPane>
-                
-                <Separator/>
-                
+                <VBox spacing="10" styleClass="metric-card">
+                    <Label text="Eligibility Criteria" style="-fx-font-size:14; -fx-font-weight:bold; -fx-text-fill:#2c3e50;"/>
+                    <VBox fx:id="eligibilityContainer" spacing="5"/>
+                </VBox>
+
+                <VBox spacing="10" styleClass="metric-card" VBox.vgrow="ALWAYS">
+                    <Label text="Risk Flags &amp; Warnings" style="-fx-font-size:14; -fx-font-weight:bold; -fx-text-fill:#c0392b;"/>
+                    <ScrollPane fitToWidth="true" style="-fx-background-color:transparent; -fx-background:transparent;" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="flagsContainer" spacing="5"/>
+                    </ScrollPane>
+                </VBox>
+
                 <VBox spacing="10">
-                    <Label text="Underwriter Decision &amp; Conditions" style="-fx-font-weight:bold;"/>
-                    <TextArea fx:id="txtComments" promptText="Enter final comments, specific conditions for approval, or reasons for decline..."
-                              prefHeight="80" wrapText="true" style="-fx-border-color:#dcdde1; -fx-background-radius:4;"/>
+                    <Label text="Underwriter Decision" style="-fx-font-weight:bold;"/>
+                    <TextArea fx:id="txtComments" promptText="Final comments or conditions..." prefHeight="80" wrapText="true"
+                              style="-fx-border-color:#dcdde1; -fx-background-radius:4;"/>
                     
-                    <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
-                        <Button text="DECLINE" onAction="#submitDecline" prefWidth="120"
+                    <HBox spacing="15" alignment="CENTER_RIGHT">
+                        <Button text="DECLINE" onAction="#submitDecline"
                                 style="-fx-background-color:white; -fx-text-fill:#c0392b; -fx-font-weight:bold; -fx-border-color:#c0392b; -fx-border-radius:4; -fx-cursor:hand;"/>
-                        <Button text="APPROVE w/ CONDITIONS" onAction="#submitCondition" prefWidth="180"
+                        <Button text="APPROVE w/ CONDITIONS" onAction="#submitCondition"
                                 style="-fx-background-color:#f39c12; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:4; -fx-cursor:hand;"/>
-                        <Button text="FINAL APPROVAL" onAction="#submitApprove" prefWidth="150"
+                        <Button text="FINAL APPROVAL" onAction="#submitApprove"
                                 style="-fx-background-color:#27ae60; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:4; -fx-cursor:hand;"/>
                     </HBox>
                 </VBox>
+
             </VBox>
         </HBox>
     </center>

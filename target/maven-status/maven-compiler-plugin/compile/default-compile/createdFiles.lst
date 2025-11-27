@@ -21,7 +21,6 @@ com\finbasics\model\NewApplication.class
 com\finbasics\model\StatementAnalysis.class
 com\finbasics\controller\LoginController.class
 com\finbasics\service\ApplicationService.class
-com\finbasics\controller\RiskAssessmentController$1.class
 com\finbasics\persistence\ApplicationRepository.class
 com\finbasics\persistence\StatementAnalysisRepository.class
 com\finbasics\controller\DashboardController.class

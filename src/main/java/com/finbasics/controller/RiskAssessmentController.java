@@ -7,6 +7,7 @@ import com.finbasics.persistence.StatementAnalysisRepository;
 import com.finbasics.service.ApplicationContext;
 import com.finbasics.service.FinancialCalculator;
 import com.finbasics.service.FinancialCalculator.Evaluation;
+import com.finbasics.service.FinancialCalculator.Status;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -21,13 +23,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RiskAssessmentController {
 
     @FXML private Label lblBorrowerName, lblAppNumber, lblProduct, lblAmount;
-    @FXML private HBox tierBanner;
     @FXML private Label lblRiskGrade, lblRecommendation;
-    @FXML private VBox factorsContainer;
+    
+    @FXML private VBox eligibilityContainer;
+    @FXML private VBox flagsContainer;
     @FXML private TextArea txtComments;
 
     private final ApplicationRepository appRepo = new ApplicationRepository();
@@ -45,9 +50,11 @@ public class RiskAssessmentController {
 
             if (summary != null && analysis != null) {
                 populateHeader(summary);
-                generateRiskAssessment(analysis);
+                runAssessment(analysis);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void populateHeader(ApplicationSummary s) {
@@ -57,89 +64,118 @@ public class RiskAssessmentController {
         lblAmount.setText(String.format("$%,.0f", s.getRequestedAmount()));
     }
 
-    private void generateRiskAssessment(StatementAnalysis sa) {
-        factorsContainer.getChildren().clear();
+    private void runAssessment(StatementAnalysis sa) {
+        // 1. Credit Tier
         String tier = FinancialCalculator.calculateOverallRiskGrade(sa);
         lblRiskGrade.setText(tier);
+        updateRecommendation(tier);
 
-        // Style the banner based on the tier
-        String bannerStyle = "-fx-padding:20; -fx-background-radius:8; -fx-background-color:";
-        String recText;
-        if (tier.contains("Tier 1")) {
-            bannerStyle += "#d5f5e3;"; // Light Green
-            recText = "Strong profile. Recommended for standard approval.";
-        } else if (tier.contains("Tier 2")) {
-            bannerStyle += "#fcf3cf;"; // Light Yellow
-            recText = "Moderate risk. Approval recommended subject to standard conditions.";
-        } else if (tier.contains("Tier 3")) {
-            bannerStyle += "#fadbd8;"; // Light Red
-            recText = "High risk. Consider decline or approval only with strong mitigants and tight conditions.";
-        } else {
-            bannerStyle += "#ebedef;"; // Grey
-            recText = "Critical risk. Decline recommended.";
-        }
-        tierBanner.setStyle(bannerStyle);
-        lblRecommendation.setText(recText);
-        
-        // Dynamically add risk factor rows
+        // 2. Eligibility Checks & Flags
+        eligibilityContainer.getChildren().clear();
+        flagsContainer.getChildren().clear();
+
         if ("SME".equalsIgnoreCase(sa.getBorrowerType())) {
-            addFactorRow(FinancialCalculator.evaluateSmeDscr(sa.getDscr()));
-            addFactorRow(FinancialCalculator.evaluateSmeLeverage(sa.getDebtToEquity()));
-            addFactorRow(FinancialCalculator.evaluateSmeCurrentRatio(sa.getCurrentRatio()));
-            addFactorRow(FinancialCalculator.evaluateSmeProfitability(sa.getNetMargin()));
+            runSmeChecks(sa);
         } else {
-            addFactorRow(FinancialCalculator.evaluateConsumerDti(sa.getDti()));
-            addFactorRow(FinancialCalculator.evaluateConsumerCreditScore(sa.getCreditScore()));
-            if (sa.getLtv() > 0.01) addFactorRow(FinancialCalculator.evaluateConsumerLtv(sa.getLtv()));
+            runConsumerChecks(sa);
+        }
+        
+        if (flagsContainer.getChildren().isEmpty()) {
+            Label safe = new Label("No significant risk flags identified.");
+            safe.setStyle("-fx-text-fill:#27ae60; -fx-font-style:italic;");
+            flagsContainer.getChildren().add(safe);
         }
     }
 
-    private void addFactorRow(Evaluation eval) {
+    private void updateRecommendation(String tier) {
+        if (tier.contains("Tier 1")) {
+            lblRiskGrade.setStyle("-fx-font-size:36; -fx-font-weight:800; -fx-text-fill:#27ae60;"); // Green
+            lblRecommendation.setText("Strong profile. Recommended for Approval.");
+        } else if (tier.contains("Tier 2")) {
+            lblRiskGrade.setStyle("-fx-font-size:36; -fx-font-weight:800; -fx-text-fill:#f39c12;"); // Orange
+            lblRecommendation.setText("Moderate risk. Approve with conditions.");
+        } else {
+            lblRiskGrade.setStyle("-fx-font-size:36; -fx-font-weight:800; -fx-text-fill:#c0392b;"); // Red
+            lblRecommendation.setText("High risk. Decline recommended.");
+        }
+    }
+
+    private void runSmeChecks(StatementAnalysis sa) {
+        // Eligibility
+        addCheck("Minimum DSCR >= 1.25x", sa.getDscr() >= 1.25);
+        addCheck("Positive Net Income", sa.getNetIncome() > 0);
+        addCheck("Current Ratio >= 1.0", sa.getCurrentRatio() >= 1.0);
+
+        // Flags
+        checkFlag(FinancialCalculator.evaluateSmeDscr(sa.getDscr()));
+        checkFlag(FinancialCalculator.evaluateSmeLeverage(sa.getDebtToEquity()));
+        checkFlag(FinancialCalculator.evaluateSmeProfitability(sa.getNetMargin()));
+        if (sa.getDso() > 90) addFlag("Efficiency Warning", "DSO is high (" + String.format("%.0f", sa.getDso()) + " days), indicating slow collections.");
+    }
+
+    private void runConsumerChecks(StatementAnalysis sa) {
+        // Eligibility
+        addCheck("Credit Score >= 640", sa.getCreditScore() >= 640);
+        addCheck("DTI Ratio <= 43%", sa.getDti() <= 0.43);
+        if (sa.getLtv() > 0) addCheck("LTV <= 90%", sa.getLtv() <= 0.90);
+
+        // Flags
+        checkFlag(FinancialCalculator.evaluateConsumerDti(sa.getDti()));
+        checkFlag(FinancialCalculator.evaluateConsumerCreditScore(sa.getCreditScore()));
+        if (sa.getLtv() > 0) checkFlag(FinancialCalculator.evaluateConsumerLtv(sa.getLtv()));
+    }
+
+    private void addCheck(String label, boolean pass) {
         HBox row = new HBox(10);
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-padding: 10 15; -fx-background-color: white; -fx-background-radius: 6; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 0 4;");
-
-        Label titleStr = new Label(eval.label());
-        titleStr.setStyle("-fx-font-weight:bold; -fx-text-fill:#7f8c8d; -fx-min-width:100;");
-        
-        Label valueStr = new Label(eval.formattedValue());
-        valueStr.setStyle("-fx-font-weight:bold; -fx-font-size:13; -fx-min-width:80;");
-
-        Label statusBadge = new Label(eval.status().toString());
-        String statusStyle = switch (eval.status()) {
-            case STRONG -> "-fx-background-color:#d5f5e3; -fx-text-fill:#27ae60;";
-            case ACCEPTABLE -> "-fx-background-color:#fcf3cf; -fx-text-fill:#f39c12;";
-            default -> "-fx-background-color:#fadbd8; -fx-text-fill:#c0392b;";
-        };
-        statusBadge.setStyle(statusStyle + " -fx-padding:2 8; -fx-background-radius:10; -fx-font-weight:bold; -fx-font-size:10;");
-        
-        Label narrative = new Label(eval.narrative());
-        narrative.setWrapText(true);
-        HBox.setHgrow(narrative, Priority.ALWAYS);
-
-        row.setStyle(row.getStyle() + (eval.status() == FinancialCalculator.Status.STRONG ? "-fx-border-color:#27ae60;" : eval.status() == FinancialCalculator.Status.ACCEPTABLE ? "-fx-border-color:#f39c12;" : "-fx-border-color:#c0392b;"));
-
-        row.getChildren().addAll(titleStr, valueStr, statusBadge, narrative);
-        factorsContainer.getChildren().add(row);
+        Label icon = new Label(pass ? "\u2714" : "\u2716"); // Check or X
+        icon.setStyle(pass ? "-fx-text-fill:#27ae60; -fx-font-weight:bold;" : "-fx-text-fill:#c0392b; -fx-font-weight:bold;");
+        Label text = new Label(label);
+        text.setStyle(pass ? "-fx-text-fill:#2c3e50;" : "-fx-text-fill:#7f8c8d; -fx-strikethrough:true;");
+        row.getChildren().addAll(icon, text);
+        eligibilityContainer.getChildren().add(row);
     }
 
-    @FXML void submitApprove() { updateStatusAndFinish("APPROVED"); }
-    @FXML void submitCondition() { updateStatusAndFinish("APPROVED_CONDITIONS"); }
-    @FXML void submitDecline() { updateStatusAndFinish("DECLINED"); }
+    private void checkFlag(Evaluation eval) {
+        if (eval.status() == Status.WEAK || eval.status() == Status.CRITICAL) {
+            addFlag(eval.label() + " Risk", eval.narrative() + " (" + eval.formattedValue() + ")");
+        }
+    }
 
-    private void updateStatusAndFinish(String newStatus) {
+    private void addFlag(String title, String desc) {
+        HBox row = new HBox(10);
+        row.setStyle("-fx-padding:8; -fx-background-color:#fdedec; -fx-border-color:#fadbd8; -fx-border-radius:4;");
+        Label icon = new Label("!");
+        icon.setStyle("-fx-text-fill:#c0392b; -fx-font-weight:bold; -fx-font-size:14;");
+        
+        VBox content = new VBox(2);
+        Label lblTitle = new Label(title);
+        lblTitle.setStyle("-fx-font-weight:bold; -fx-text-fill:#c0392b; -fx-font-size:11;");
+        Label lblDesc = new Label(desc);
+        lblDesc.setWrapText(true);
+        lblDesc.setStyle("-fx-text-fill:#2c3e50; -fx-font-size:11;");
+        
+        content.getChildren().addAll(lblTitle, lblDesc);
+        HBox.setHgrow(content, Priority.ALWAYS);
+        row.getChildren().addAll(icon, content);
+        flagsContainer.getChildren().add(row);
+    }
+
+    // --- Decisions ---
+    @FXML void submitApprove() { updateStatus("APPROVED"); }
+    @FXML void submitCondition() { updateStatus("APPROVED_CONDITIONS"); }
+    @FXML void submitDecline() { updateStatus("DECLINED"); }
+
+    private void updateStatus(String status) {
         if (txtComments.getText().isBlank()) {
-            new Alert(Alert.AlertType.WARNING, "Please enter comments before submitting the decision.").showAndWait();
+            new Alert(Alert.AlertType.WARNING, "Please enter final comments.").showAndWait();
             return;
         }
         try {
-            appRepo.updateStatus(currentAppId, newStatus);
-            new Alert(Alert.AlertType.INFORMATION, "Decision Submitted. Application status updated to: " + newStatus).showAndWait();
+            appRepo.updateStatus(currentAppId, status);
+            new Alert(Alert.AlertType.INFORMATION, "Status updated: " + status).showAndWait();
             goDashboard();
-        } catch (Exception e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to update status: " + e.getMessage()).showAndWait();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     @FXML private void goBack() { loadScene("/fxml/applicant_detail.fxml"); }
