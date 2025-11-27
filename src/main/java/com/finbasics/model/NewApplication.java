@@ -1,25 +1,25 @@
 package com.finbasics.model;
 
 /**
- * DTO that represents everything entered in the Submit Application wizard.
+ * DTO used by the submission wizard to carry all data needed
+ * to create a new application and run automatic analysis.
  */
 public class NewApplication {
 
     private String borrowerType;      // "SME" or "CONSUMER"
-    private String borrowerName;      // business or consumer name (used in applications.borrower_name)
-    private String borrowerIdNumber;  // EIN or SSN label
-
+    private String borrowerName;
+    private String borrowerIdNumber;
     private String productType;
     private double requestedAmount;
 
-    // SME-specific
+    // SME fields
     private String businessName;
     private String ein;
     private String naicsCode;
-    private String dateEstablishedIso; // ISO-8601 string yyyy-MM-dd
+    private String dateEstablishedIso;
     private String guarantorName;
 
-    // Consumer-specific
+    // Consumer fields
     private String consumerName;
     private String ssn;
     private String employer;
@@ -27,115 +27,45 @@ public class NewApplication {
 
     // --- Getters / Setters ---
 
-    public String getBorrowerType() {
-        return borrowerType;
-    }
+    public String getBorrowerType() { return borrowerType; }
+    public void setBorrowerType(String borrowerType) { this.borrowerType = borrowerType; }
 
-    public void setBorrowerType(String borrowerType) {
-        this.borrowerType = borrowerType;
-    }
+    public String getBorrowerName() { return borrowerName; }
+    public void setBorrowerName(String borrowerName) { this.borrowerName = borrowerName; }
 
-    public String getBorrowerName() {
-        return borrowerName;
-    }
+    public String getBorrowerIdNumber() { return borrowerIdNumber; }
+    public void setBorrowerIdNumber(String borrowerIdNumber) { this.borrowerIdNumber = borrowerIdNumber; }
 
-    public void setBorrowerName(String borrowerName) {
-        this.borrowerName = borrowerName;
-    }
+    public String getProductType() { return productType; }
+    public void setProductType(String productType) { this.productType = productType; }
 
-    public String getBorrowerIdNumber() {
-        return borrowerIdNumber;
-    }
+    public double getRequestedAmount() { return requestedAmount; }
+    public void setRequestedAmount(double requestedAmount) { this.requestedAmount = requestedAmount; }
 
-    public void setBorrowerIdNumber(String borrowerIdNumber) {
-        this.borrowerIdNumber = borrowerIdNumber;
-    }
+    public String getBusinessName() { return businessName; }
+    public void setBusinessName(String businessName) { this.businessName = businessName; }
 
-    public String getProductType() {
-        return productType;
-    }
+    public String getEin() { return ein; }
+    public void setEin(String ein) { this.ein = ein; }
 
-    public void setProductType(String productType) {
-        this.productType = productType;
-    }
+    public String getNaicsCode() { return naicsCode; }
+    public void setNaicsCode(String naicsCode) { this.naicsCode = naicsCode; }
 
-    public double getRequestedAmount() {
-        return requestedAmount;
-    }
+    public String getDateEstablishedIso() { return dateEstablishedIso; }
+    public void setDateEstablishedIso(String dateEstablishedIso) { this.dateEstablishedIso = dateEstablishedIso; }
 
-    public void setRequestedAmount(double requestedAmount) {
-        this.requestedAmount = requestedAmount;
-    }
+    public String getGuarantorName() { return guarantorName; }
+    public void setGuarantorName(String guarantorName) { this.guarantorName = guarantorName; }
 
-    public String getBusinessName() {
-        return businessName;
-    }
+    public String getConsumerName() { return consumerName; }
+    public void setConsumerName(String consumerName) { this.consumerName = consumerName; }
 
-    public void setBusinessName(String businessName) {
-        this.businessName = businessName;
-    }
+    public String getSsn() { return ssn; }
+    public void setSsn(String ssn) { this.ssn = ssn; }
 
-    public String getEin() {
-        return ein;
-    }
+    public String getEmployer() { return employer; }
+    public void setEmployer(String employer) { this.employer = employer; }
 
-    public void setEin(String ein) {
-        this.ein = ein;
-    }
-
-    public String getNaicsCode() {
-        return naicsCode;
-    }
-
-    public void setNaicsCode(String naicsCode) {
-        this.naicsCode = naicsCode;
-    }
-
-    public String getDateEstablishedIso() {
-        return dateEstablishedIso;
-    }
-
-    public void setDateEstablishedIso(String dateEstablishedIso) {
-        this.dateEstablishedIso = dateEstablishedIso;
-    }
-
-    public String getGuarantorName() {
-        return guarantorName;
-    }
-
-    public void setGuarantorName(String guarantorName) {
-        this.guarantorName = guarantorName;
-    }
-
-    public String getConsumerName() {
-        return consumerName;
-    }
-
-    public void setConsumerName(String consumerName) {
-        this.consumerName = consumerName;
-    }
-
-    public String getSsn() {
-        return ssn;
-    }
-
-    public void setSsn(String ssn) {
-        this.ssn = ssn;
-    }
-
-    public String getEmployer() {
-        return employer;
-    }
-
-    public void setEmployer(String employer) {
-        this.employer = employer;
-    }
-
-    public Double getAnnualIncome() {
-        return annualIncome;
-    }
-
-    public void setAnnualIncome(Double annualIncome) {
-        this.annualIncome = annualIncome;
-    }
+    public Double getAnnualIncome() { return annualIncome; }
+    public void setAnnualIncome(Double annualIncome) { this.annualIncome = annualIncome; }
 }

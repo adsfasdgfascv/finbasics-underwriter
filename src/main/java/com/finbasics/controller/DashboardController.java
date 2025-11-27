@@ -1,6 +1,7 @@
 package com.finbasics.controller;
 
 import com.finbasics.model.ApplicationSummary;
+import com.finbasics.service.ApplicationContext;
 import com.finbasics.service.ApplicationService;
 import com.finbasics.service.Session;
 
@@ -13,32 +14,28 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
+/**
+ * Main dashboard: shows pipeline KPIs and applicants list.
+ * Double-click or "Open Applicant" navigates to detail + statement analysis page.
+ */
 public class DashboardController {
 
     @FXML private Label userLabel;
 
-    // Applicants list (right side in wireframe)
     @FXML private TableView<ApplicationSummary> appTable;
     @FXML private TableColumn<ApplicationSummary, String> colAppNo;
     @FXML private TableColumn<ApplicationSummary, String> colBorrower;
+    @FXML private TableColumn<ApplicationSummary, String> colType;
     @FXML private TableColumn<ApplicationSummary, String> colProduct;
     @FXML private TableColumn<ApplicationSummary, String> colAmount;
     @FXML private TableColumn<ApplicationSummary, String> colStatus;
     @FXML private TableColumn<ApplicationSummary, String> colCreated;
 
-    // Detail + Statement Analysis panel
-    @FXML private Label lblApplicantName;
-    @FXML private Label lblApplicantProduct;
-    @FXML private Label lblApplicantAmount;
-    @FXML private Label lblApplicantStatus;
-    @FXML private Label lblApplicantCreated;
-
-    @FXML private Label lblDscr;
-    @FXML private Label lblCurrentRatio;
-    @FXML private Label lblDebtToEquity;
-    @FXML private Label lblNetMargin;
-
     @FXML private Button btnNewApplication;
+    @FXML private Button btnOpenApplicant;
 
     private final ApplicationService appService = new ApplicationService();
 
@@ -46,7 +43,7 @@ public class DashboardController {
     public void initialize() {
         var user = Session.getCurrentUser();
         if (user != null) {
-            userLabel.setText("Analyst: " + user.getusername());
+            userLabel.setText("Analyst: " + user.getUsername());
         } else {
             userLabel.setText("Analyst: (not logged in)");
         }
@@ -54,21 +51,28 @@ public class DashboardController {
         setupTable();
         loadApplicants();
 
-        appTable.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSel, newSel) -> showSummary(newSel));
+        appTable.setRowFactory(tv -> {
+            TableRow<ApplicationSummary> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    openDetailFor(row.getItem());
+                }
+            });
+            return row;
+        });
     }
 
     private void setupTable() {
-        colAppNo.setCellValueFactory(cell -> cell.getValue().applicationNumberProperty());
-        colBorrower.setCellValueFactory(cell -> cell.getValue().borrowerNameProperty());
-        colProduct.setCellValueFactory(cell -> cell.getValue().productTypeProperty());
-        colAmount.setCellValueFactory(cell ->
-                new SimpleStringProperty(String.format("$%,.0f", cell.getValue().getRequestedAmount())));
-        colStatus.setCellValueFactory(cell -> cell.getValue().statusProperty());
-        colCreated.setCellValueFactory(cell -> cell.getValue().createdAtProperty());
+        colAppNo.setCellValueFactory(c -> c.getValue().applicationNumberProperty());
+        colBorrower.setCellValueFactory(c -> c.getValue().borrowerNameProperty());
+        colType.setCellValueFactory(c -> c.getValue().borrowerTypeProperty());
+        colProduct.setCellValueFactory(c -> c.getValue().productTypeProperty());
+        colAmount.setCellValueFactory(c ->
+                new SimpleStringProperty(String.format("$%,.0f", c.getValue().getRequestedAmount())));
+        colStatus.setCellValueFactory(c -> c.getValue().statusProperty());
+        colCreated.setCellValueFactory(c -> c.getValue().createdAtProperty());
 
-        // Simple visual cue for status
-        colStatus.setCellFactory(column -> new TableCell<>() {
+        colStatus.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -79,11 +83,9 @@ public class DashboardController {
                 }
                 setText(item);
                 if (item.startsWith("ANALYZED")) {
-                    setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-                } else if (item.startsWith("INTAKE") || item.startsWith("REVIEW")) {
-                    setStyle("-fx-text-fill: #d35400; -fx-font-weight: bold;");
+                    setStyle("-fx-text-fill:#27ae60; -fx-font-weight:bold;");
                 } else {
-                    setStyle("");
+                    setStyle("-fx-text-fill:#7f8c8d;");
                 }
             }
         });
@@ -91,79 +93,55 @@ public class DashboardController {
 
     private void loadApplicants() {
         try {
-            ObservableList<ApplicationSummary> data = appService.loadApplicationSummaries();
-            appTable.setItems(data);
-            if (!data.isEmpty()) {
-                appTable.getSelectionModel().selectFirst();
-                showSummary(data.getFirst());
-            } else {
-                clearSummary();
-            }
-        } catch (Exception e) {
+            ObservableList<ApplicationSummary> list = appService.loadApplicationSummaries();
+            appTable.setItems(list);
+        } catch (SQLException e) {
             e.printStackTrace();
-            clearSummary();
         }
-    }
-
-    private void showSummary(ApplicationSummary s) {
-        if (s == null) {
-            clearSummary();
-            return;
-        }
-
-        lblApplicantName.setText(s.getBorrowerName());
-        lblApplicantProduct.setText(s.getProductType());
-        lblApplicantAmount.setText(String.format("$%,.0f", s.getRequestedAmount()));
-        lblApplicantStatus.setText(s.getStatus());
-        lblApplicantCreated.setText(s.getCreatedAt());
-
-        lblDscr.setText(formatRatio(s.getDscr()));
-        lblCurrentRatio.setText(formatRatio(s.getCurrentRatio()));
-        lblDebtToEquity.setText(formatRatio(s.getDebtToEquity()));
-        lblNetMargin.setText(String.format("%.1f%%", s.getNetMargin() * 100.0));
-    }
-
-    private void clearSummary() {
-        lblApplicantName.setText("No applicant selected");
-        lblApplicantProduct.setText("-");
-        lblApplicantAmount.setText("-");
-        lblApplicantStatus.setText("-");
-        lblApplicantCreated.setText("-");
-
-        lblDscr.setText("-");
-        lblCurrentRatio.setText("-");
-        lblDebtToEquity.setText("-");
-        lblNetMargin.setText("-");
-    }
-
-    private String formatRatio(double value) {
-        if (Double.isNaN(value) || Double.isInfinite(value) || value == 0.0) {
-            return "-";
-        }
-        return String.format("%.2f×", value);
     }
 
     @FXML
-    public void openNewApplication() {
+    private void openSelectedApplicant() {
+        ApplicationSummary selected = appTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            openDetailFor(selected);
+        }
+    }
+
+    private void openDetailFor(ApplicationSummary app) {
+        try {
+            ApplicationContext.setCurrentApplicationId(app.getId());
+            Stage stage = (Stage) appTable.getScene().getWindow();
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/applicant_detail.fxml"));
+            stage.setScene(new Scene(root, 1200, 720));
+            stage.setTitle("Applicant " + app.getApplicationNumber());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openNewApplication() {
         try {
             Stage stage = (Stage) btnNewApplication.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/submit_application.fxml"));
-            stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle("FinBasics - New Application");
-        } catch (Exception e) {
+            stage.setScene(new Scene(root, 1200, 720));
+            stage.setTitle("New Application");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    public void logout() {
-        com.finbasics.service.Session.clear();
+    private void logout() {
+        Session.clear();
         try {
             Stage stage = (Stage) btnNewApplication.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
             stage.setScene(new Scene(root, 1200, 720));
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            stage.setTitle("FinBasics Underwriter - Login");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -9,35 +9,59 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.scene.layout.Priority;
 import javafx.geometry.Pos;
-import javafx.scene.layout.Region;
 
+import java.io.IOException;
+
+/**
+ * Three-step submission wizard:
+ * 1) Borrower type, product, amount
+ * 2) SME vs Consumer info
+ * 3) Document checklist
+ */
 public class SubmitApplicationController {
 
-    // --- Navigation UI ---
-    @FXML private VBox viewStep1, viewStep3, docListContainer;
+    // Step containers
+    @FXML private VBox viewStep1;
+    @FXML private VBox viewStep3;
     @FXML private StackPane viewStep2;
-    @FXML private VBox formSme, formConsumer;
-    @FXML private HBox step1Box, step2Box, step3Box;
-    @FXML private Button backBtn, nextBtn;
-    @FXML private Label errorLabel, lblDocType;
 
-    // --- Data Inputs ---
-    @FXML private RadioButton rbSme, rbConsumer;
+    @FXML private VBox formSme;
+    @FXML private VBox formConsumer;
+
+    @FXML private HBox step1Box;
+    @FXML private HBox step2Box;
+    @FXML private HBox step3Box;
+
+    // Step 1
+    @FXML private RadioButton rbSme;
+    @FXML private RadioButton rbConsumer;
     @FXML private ComboBox<String> comboProduct;
     @FXML private TextField txtAmount;
 
-    // SME Inputs
-    @FXML private TextField txtBizName, txtEin, txtNaics, txtGuarantor;
+    // Step 2 SME
+    @FXML private TextField txtBizName;
+    @FXML private TextField txtEin;
+    @FXML private TextField txtNaics;
     @FXML private DatePicker dpEstablished;
+    @FXML private TextField txtGuarantor;
 
-    // Consumer Inputs
-    @FXML private TextField txtConsumerName, txtSsn, txtEmployer, txtIncome;
+    // Step 2 Consumer
+    @FXML private TextField txtConsumerName;
+    @FXML private TextField txtSsn;
+    @FXML private TextField txtEmployer;
+    @FXML private TextField txtIncome;
+
+    // Step 3
+    @FXML private VBox docListContainer;
+    @FXML private Label lblDocType;
+
+    // Navigation
+    @FXML private Button backBtn;
+    @FXML private Button nextBtn;
+    @FXML private Label errorLabel;
 
     private int currentStep = 1;
     private ToggleGroup typeGroup;
@@ -46,44 +70,102 @@ public class SubmitApplicationController {
 
     @FXML
     public void initialize() {
-        // 1. Setup Toggle Group for SME vs Consumer
         typeGroup = new ToggleGroup();
         rbSme.setToggleGroup(typeGroup);
         rbConsumer.setToggleGroup(typeGroup);
-
-        // Default to SME
         rbSme.setSelected(true);
 
-        // 2. Listen for Type Change to update Product List
-        typeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateProductList());
-        updateProductList(); // Init defaults
+        typeGroup.selectedToggleProperty().addListener((obs, o, n) -> updateProductList());
+        updateProductList();
 
-        updateView(); // ensure step 1 is visible
+        updateView();
     }
 
     private void updateProductList() {
         comboProduct.getItems().clear();
         if (rbSme.isSelected()) {
-            comboProduct.getItems().addAll(
-                "SME Term Loan", "Line of Credit", "CRE Mortgage", "Equipment Lease"
-            );
+            comboProduct.getItems().addAll("SME Term Loan", "Line of Credit", "CRE Mortgage", "Equipment Lease");
         } else {
-            comboProduct.getItems().addAll(
-                "Personal Loan", "Auto Loan", "Home Equity (HELOC)", "Mortgage"
-            );
+            comboProduct.getItems().addAll("Personal Loan", "Auto Loan", "Home Equity (HELOC)", "Mortgage");
         }
         comboProduct.getSelectionModel().selectFirst();
     }
 
+    private void updateView() {
+        viewStep1.setVisible(currentStep == 1);
+        viewStep2.setVisible(currentStep == 2);
+        viewStep3.setVisible(currentStep == 3);
+
+        if (currentStep == 2) {
+            boolean isSme = rbSme.isSelected();
+            formSme.setVisible(isSme);
+            formConsumer.setVisible(!isSme);
+        }
+
+        if (currentStep == 3) {
+            buildDocChecklist();
+        }
+
+        backBtn.setDisable(currentStep == 1);
+        nextBtn.setText(currentStep == 3 ? "Create Application" : "Next →");
+
+        highlightStep(step1Box, currentStep >= 1);
+        highlightStep(step2Box, currentStep >= 2);
+        highlightStep(step3Box, currentStep >= 3);
+    }
+
+    private void highlightStep(HBox box, boolean active) {
+        if (active) {
+            box.setStyle("-fx-padding:10; -fx-background-color:#e8f6f3; -fx-border-color:#27ae60; -fx-border-width:0 0 0 4;");
+        } else {
+            box.setStyle("-fx-padding:10; -fx-background-color:transparent;");
+        }
+    }
+
+    private void buildDocChecklist() {
+        docListContainer.getChildren().clear();
+        boolean isSme = rbSme.isSelected();
+
+        lblDocType.setText(isSme ? "SME Standard Pack" : "Consumer Standard Pack");
+
+        String[] items;
+        if (isSme) {
+            items = new String[]{
+                    "Business Tax Returns (Last 2 Years)",
+                    "YTD Profit & Loss Statement",
+                    "Current Balance Sheet",
+                    "Bank Statements (Last 3 Months)",
+                    "Articles of Incorporation"
+            };
+        } else {
+            items = new String[]{
+                    "Personal Tax Returns (Last 2 Years)",
+                    "Recent Pay Stubs (Last 30 Days)",
+                    "W-2 Forms",
+                    "Government ID Copy",
+                    "Bank Statements (Last 2 Months)"
+            };
+        }
+
+        for (String text : items) {
+            HBox row = new HBox(10);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setStyle("-fx-padding:8; -fx-background-color:#f8f9fa; -fx-border-color:#e5e7eb; -fx-border-radius:4;");
+            CheckBox cb = new CheckBox();
+            Label lbl = new Label(text);
+            HBox spacer = new HBox();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            Button btn = new Button("Select File...");
+            row.getChildren().addAll(cb, lbl, spacer, btn);
+            docListContainer.getChildren().add(row);
+        }
+    }
+
     @FXML
     private void goNext() {
-        errorLabel.setText(""); // Clear errors
-
-        if (currentStep == 1) {
-            if (!validateStep1()) return;
-        } else if (currentStep == 2) {
-            if (!validateStep2()) return;
-        }
+        errorLabel.setText("");
+        if (currentStep == 1 && !validateStep1()) return;
+        if (currentStep == 2 && !validateStep2()) return;
 
         if (currentStep < 3) {
             currentStep++;
@@ -104,13 +186,13 @@ public class SubmitApplicationController {
 
     private boolean validateStep1() {
         if (txtAmount.getText().isBlank()) {
-            errorLabel.setText("Please enter a requested amount.");
+            errorLabel.setText("Requested amount is required.");
             return false;
         }
         try {
-            parseMonetary(txtAmount.getText());
+            parseMoney(txtAmount.getText());
         } catch (NumberFormatException ex) {
-            errorLabel.setText("Invalid amount format. Please enter a numeric value.");
+            errorLabel.setText("Invalid amount format.");
             return false;
         }
         return true;
@@ -119,19 +201,19 @@ public class SubmitApplicationController {
     private boolean validateStep2() {
         if (rbSme.isSelected()) {
             if (txtBizName.getText().isBlank()) {
-                errorLabel.setText("Business name is required for SME applications.");
+                errorLabel.setText("Business name is required for SME borrowers.");
                 return false;
             }
         } else {
             if (txtConsumerName.getText().isBlank()) {
-                errorLabel.setText("Applicant name is required for consumer applications.");
+                errorLabel.setText("Applicant name is required.");
                 return false;
             }
             if (!txtIncome.getText().isBlank()) {
                 try {
-                    parseMonetary(txtIncome.getText());
+                    parseMoney(txtIncome.getText());
                 } catch (NumberFormatException ex) {
-                    errorLabel.setText("Invalid annual income format.");
+                    errorLabel.setText("Annual income must be numeric.");
                     return false;
                 }
             }
@@ -139,106 +221,18 @@ public class SubmitApplicationController {
         return true;
     }
 
-    private void updateView() {
-        // 1. Manage Visibility
-        viewStep1.setVisible(currentStep == 1);
-        viewStep2.setVisible(currentStep == 2);
-        viewStep3.setVisible(currentStep == 3);
-
-        // 2. Step 2 Logic: Show correct form (SME vs Consumer)
-        if (currentStep == 2) {
-            boolean isSme = rbSme.isSelected();
-            formSme.setVisible(isSme);
-            formConsumer.setVisible(!isSme);
-        }
-
-        // 3. Step 3 Logic: Generate correct checklist
-        if (currentStep == 3) {
-            generateDocChecklist();
-        }
-
-        // 4. Update Navigation Buttons
-        backBtn.setDisable(currentStep == 1);
-        nextBtn.setText(currentStep == 3 ? "Create Application" : "Next Step →");
-
-        // 5. Update Sidebar Indicators
-        highlightStep(step1Box, currentStep >= 1);
-        highlightStep(step2Box, currentStep >= 2);
-        highlightStep(step3Box, currentStep >= 3);
-    }
-
-    private void generateDocChecklist() {
-        docListContainer.getChildren().clear();
-        boolean isSme = rbSme.isSelected();
-
-        lblDocType.setText(isSme ? "(SME Standard Pack)" : "(Consumer Standard Pack)");
-        lblDocType.setStyle(isSme
-                ? "-fx-background-color: #d6eaf8; -fx-text-fill: #2980b9;"
-                : "-fx-background-color: #d5f5e3; -fx-text-fill: #27ae60;");
-
-        String[] requirements;
-        if (isSme) {
-            requirements = new String[] {
-                "Business Tax Returns (Last 2 Years)",
-                "YTD Profit & Loss Statement",
-                "Balance Sheet (Current)",
-                "Business Bank Statements (Last 3 Months)",
-                "Articles of Incorporation / Org"
-            };
-        } else {
-            requirements = new String[] {
-                "Personal Tax Returns (Last 2 Years)",
-                "Pay Stubs (Last 30 Days)",
-                "W-2 Forms (Last 2 Years)",
-                "Copy of Govt ID (Driver's License)",
-                "Personal Bank Statements (Last 2 Months)"
-            };
-        }
-
-        for (String req : requirements) {
-            HBox row = new HBox(10);
-            row.setAlignment(Pos.CENTER_LEFT);
-            row.setStyle("-fx-padding: 10; -fx-background-color: #f8f9fa; -fx-border-color: #e9ecef; -fx-border-radius: 4;");
-
-            CheckBox cb = new CheckBox();
-            Label lbl = new Label(req);
-            lbl.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            Button uploadBtn = new Button("Select File...");
-            uploadBtn.setStyle("-fx-font-size: 11;");
-
-            row.getChildren().addAll(cb, lbl, spacer, uploadBtn);
-            docListContainer.getChildren().add(row);
-        }
-    }
-
-    private void highlightStep(HBox box, boolean active) {
-        if (active) {
-            box.setStyle("-fx-padding: 15 20; -fx-background-color: #e8f6f3; -fx-border-color: #27ae60; -fx-border-width: 0 0 0 4;");
-        } else {
-            box.setStyle("-fx-padding: 15 20; -fx-background-color: transparent;");
-        }
-    }
-
-    @FXML
-    private void cancel() {
-        returnToDashboard();
-    }
-
     private void submitApplication() {
         try {
-            NewApplication dto = buildNewApplicationDto();
+            NewApplication dto = buildDto();
             int appId = appService.submitNewApplication(dto);
 
-            // Optional: confirmation dialog
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setTitle("Application Created");
-            a.setHeaderText("Application successfully created");
-            a.setContentText("Application ID: " + appId + " has been analyzed and added to the applicants list.");
+            a.setHeaderText("Application successfully created and analyzed.");
+            a.setContentText("Application ID: " + appId);
             a.showAndWait();
 
-            returnToDashboard();
+            goHome();
         } catch (ApplicationException ex) {
             ex.printStackTrace();
             errorLabel.setText(ex.getMessage());
@@ -248,20 +242,21 @@ public class SubmitApplicationController {
         }
     }
 
-    private NewApplication buildNewApplicationDto() {
+    private NewApplication buildDto() {
         boolean isSme = rbSme.isSelected();
-
         NewApplication dto = new NewApplication();
+
         dto.setBorrowerType(isSme ? "SME" : "CONSUMER");
         dto.setProductType(comboProduct.getSelectionModel().getSelectedItem());
-        dto.setRequestedAmount(parseMonetary(txtAmount.getText()));
+        dto.setRequestedAmount(parseMoney(txtAmount.getText()));
 
         if (isSme) {
             dto.setBusinessName(txtBizName.getText().trim());
             dto.setEin(txtEin.getText().trim());
             dto.setNaicsCode(txtNaics.getText().trim());
+            dto.setDateEstablishedIso(dpEstablished.getValue() != null
+                    ? dpEstablished.getValue().toString() : null);
             dto.setGuarantorName(txtGuarantor.getText().trim());
-            dto.setDateEstablishedIso(dpEstablished.getValue() != null ? dpEstablished.getValue().toString() : null);
 
             dto.setBorrowerName(dto.getBusinessName());
             dto.setBorrowerIdNumber(dto.getEin() != null && !dto.getEin().isBlank()
@@ -272,7 +267,7 @@ public class SubmitApplicationController {
             dto.setSsn(txtSsn.getText().trim());
             dto.setEmployer(txtEmployer.getText().trim());
             if (!txtIncome.getText().isBlank()) {
-                dto.setAnnualIncome(parseMonetary(txtIncome.getText()));
+                dto.setAnnualIncome(parseMoney(txtIncome.getText()));
             }
 
             dto.setBorrowerName(dto.getConsumerName());
@@ -284,18 +279,23 @@ public class SubmitApplicationController {
         return dto;
     }
 
-    private double parseMonetary(String text) {
-        String cleaned = text.replace(",", "").replace("$", "").trim();
+    private double parseMoney(String txt) {
+        String cleaned = txt.replace(",", "").replace("$", "").trim();
         return Double.parseDouble(cleaned);
     }
 
-    private void returnToDashboard() {
+    @FXML
+    private void cancel() {
+        goHome();
+    }
+
+    private void goHome() {
         try {
             Stage stage = (Stage) nextBtn.getScene().getWindow();
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/dashboard.fxml"));
             stage.setScene(new Scene(root, 1200, 720));
             stage.setTitle("FinBasics Underwriter - Dashboard");
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

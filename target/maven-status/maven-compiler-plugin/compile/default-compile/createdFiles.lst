@@ -8,8 +8,10 @@ com\finbasics\service\ApplicationException.class
 com\finbasics\service\Session.class
 com\finbasics\Navigator.class
 com\finbasics\model\User.class
+com\finbasics\controller\ApplicantDetailController.class
 com\finbasics\controller\DashboardController$1.class
 com\finbasics\model\ApplicationSummary.class
+com\finbasics\service\ApplicationContext.class
 com\finbasics\controller\SubmitApplicationController.class
 com\finbasics\model\NewApplication.class
 com\finbasics\model\StatementAnalysis.class

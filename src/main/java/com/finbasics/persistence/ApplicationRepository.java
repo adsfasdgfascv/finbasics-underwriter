@@ -9,19 +9,20 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * CRUD operations for applications + simple read models for dashboard and detail.
+ */
 public class ApplicationRepository {
 
     public int createApplication(NewApplication app, int userId) throws SQLException {
         try (Connection c = Database.getConnection()) {
             c.setAutoCommit(false);
             try {
-                String applicationNumber = nextApplicationNumber(c);
                 String now = Instant.now().toString();
+                String appNumber = nextApplicationNumber(c);
 
-                // 1) applications
                 int appId;
-                try (PreparedStatement ps = c.prepareStatement(
-                        """
+                try (PreparedStatement ps = c.prepareStatement("""
                         INSERT INTO applications(
                             application_number,
                             borrower_type,
@@ -35,10 +36,9 @@ public class ApplicationRepository {
                             created_at,
                             updated_at
                         ) VALUES(?,?,?,?,?,?, 'ANALYSIS_PENDING', 72, ?, ?, ?)
-                        """,
-                        Statement.RETURN_GENERATED_KEYS)) {
+                        """, Statement.RETURN_GENERATED_KEYS)) {
 
-                    ps.setString(1, app.getBorrowerType());
+                    ps.setString(1, appNumber);
                     ps.setString(2, app.getBorrowerType());
                     ps.setString(3, app.getBorrowerName());
                     ps.setString(4, app.getBorrowerIdNumber());
@@ -50,16 +50,12 @@ public class ApplicationRepository {
 
                     ps.executeUpdate();
                     try (ResultSet keys = ps.getGeneratedKeys()) {
-                        if (!keys.next()) {
-                            throw new SQLException("No key returned for applications insert");
-                        }
+                        if (!keys.next()) throw new SQLException("No generated key for applications");
                         appId = keys.getInt(1);
                     }
                 }
 
-                // 2) application_details
-                try (PreparedStatement ps = c.prepareStatement(
-                        """
+                try (PreparedStatement ps = c.prepareStatement("""
                         INSERT INTO application_details(
                             application_id,
                             business_name,
@@ -88,15 +84,14 @@ public class ApplicationRepository {
                     } else {
                         ps.setNull(10, Types.REAL);
                     }
-
                     ps.executeUpdate();
                 }
 
                 c.commit();
                 return appId;
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 c.rollback();
-                throw e;
+                throw ex;
             } finally {
                 c.setAutoCommit(true);
             }
@@ -104,11 +99,10 @@ public class ApplicationRepository {
     }
 
     private String nextApplicationNumber(Connection c) throws SQLException {
-        // APP-YYYY-#### based on next id
         int year = LocalDate.now().getYear();
         int nextId;
         try (Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery("SELECT COALESCE(MAX(id),0) + 1 FROM applications")) {
+             ResultSet rs = st.executeQuery("SELECT COALESCE(MAX(id), 0) + 1 FROM applications")) {
             rs.next();
             nextId = rs.getInt(1);
         }
@@ -117,25 +111,19 @@ public class ApplicationRepository {
 
     public List<ApplicationSummary> findAllSummaries() throws SQLException {
         String sql = """
-            SELECT
-                a.id,
-                a.application_number,
-                a.borrower_name,
-                a.product_type,
-                a.requested_amount,
-                a.status,
-                a.created_at,
-                sa.dscr,
-                sa.current_ratio,
-                sa.debt_to_equity,
-                sa.net_margin
-            FROM applications a
-            LEFT JOIN statement_analysis sa ON sa.application_id = a.id
-            ORDER BY a.created_at DESC
+            SELECT id,
+                   application_number,
+                   borrower_type,
+                   borrower_name,
+                   product_type,
+                   requested_amount,
+                   status,
+                   created_at
+            FROM applications
+            ORDER BY created_at DESC
             """;
 
-        List<ApplicationSummary> result = new ArrayList<>();
-
+        List<ApplicationSummary> list = new ArrayList<>();
         try (Connection c = Database.getConnection();
              PreparedStatement ps = c.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -144,19 +132,50 @@ public class ApplicationRepository {
                 ApplicationSummary s = new ApplicationSummary();
                 s.setId(rs.getInt("id"));
                 s.setApplicationNumber(rs.getString("application_number"));
+                s.setBorrowerType(rs.getString("borrower_type"));
                 s.setBorrowerName(rs.getString("borrower_name"));
                 s.setProductType(rs.getString("product_type"));
                 s.setRequestedAmount(rs.getDouble("requested_amount"));
                 s.setStatus(rs.getString("status"));
                 s.setCreatedAt(rs.getString("created_at"));
-                s.setDscr(rs.getDouble("dscr"));
-                s.setCurrentRatio(rs.getDouble("current_ratio"));
-                s.setDebtToEquity(rs.getDouble("debt_to_equity"));
-                s.setNetMargin(rs.getDouble("net_margin"));
-
-                result.add(s);
+                list.add(s);
             }
         }
-        return result;
+        return list;
+    }
+
+    /**
+     * Lightweight header for ApplicantDetail screen.
+     */
+    public ApplicationSummary findHeader(int id) throws SQLException {
+        String sql = """
+            SELECT id,
+                   application_number,
+                   borrower_type,
+                   borrower_name,
+                   product_type,
+                   requested_amount,
+                   status,
+                   created_at
+            FROM applications
+            WHERE id = ?
+            """;
+        try (Connection c = Database.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                ApplicationSummary s = new ApplicationSummary();
+                s.setId(rs.getInt("id"));
+                s.setApplicationNumber(rs.getString("application_number"));
+                s.setBorrowerType(rs.getString("borrower_type"));
+                s.setBorrowerName(rs.getString("borrower_name"));
+                s.setProductType(rs.getString("product_type"));
+                s.setRequestedAmount(rs.getDouble("requested_amount"));
+                s.setStatus(rs.getString("status"));
+                s.setCreatedAt(rs.getString("created_at"));
+                return s;
+            }
+        }
     }
 }
